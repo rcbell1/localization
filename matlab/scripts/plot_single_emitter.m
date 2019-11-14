@@ -1,11 +1,10 @@
 clear; close all
 addpath('../functions')
-addpath('../../intersecting_hyperbolas')
 
 show_plots = 1;         % show plots for debugging
 show_circles = 1;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 1;    % plot hyperbolas to visualize intersection point
-targetPos = [0; 0];     % target position (meters)
+targetPos = [23; 0];     % target position (meters)
 refPos = [-50 50 0 ; ... % reference receiver positions [x; y] (meters)
           -50 -50 50 ];  
 % refPos = [0  -40  40 -70 70; ... % 5-pnt star
@@ -29,6 +28,7 @@ bounds = [-150 150 -150 150];
     get_single_emitter(targetPos, refPos, Ntrials, tx_pwr_dbm, fc, ...
     fs, Nsym, span, sps, fhigh, wlen, nstds, show_plots);
 
+%% Plots
 figure
 subplot(1,2,1)
 numrefs = size(refPos,2);
