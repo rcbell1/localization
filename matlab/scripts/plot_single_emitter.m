@@ -4,12 +4,12 @@ addpath('../functions')
 show_plots = 1;         % show plots for debugging
 show_circles = 1;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 1;    % plot hyperbolas to visualize intersection point
-targetPos = [23; 0];     % target position (meters)
+targetPos = [-35; 100];     % target position (meters)
 refPos = [-50 50 0 ; ... % reference receiver positions [x; y] (meters)
           -50 -50 50 ];  
 % refPos = [0  -40  40 -70 70; ... % 5-pnt star
 %           80 -40 -40  40 40];
-tx_pwr_dbm = -90;       % emitter transmit power in dBm
+tx_pwr_dbm = 100;       % emitter transmit power in dBm
 Ntrials = 1;            % number of simulations per emitter location
 fs = 20e6;              % receiver sample rates (Hz)
 Nsym = 40;              % number of symbols in signals

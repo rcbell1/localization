@@ -2,15 +2,15 @@ clear; close all
 addpath('../functions')
 
 plot_hull = 1;          % plot convex hull or ref stations
-emitter_bounds = [-40 40 -40 70];   % bounds of emitter locations
+emitter_bounds = [-100 100 -100 100];   % bounds of emitter locations
 plot_bounds = [-250 250 -250 250];  % outer boundary of plot figure
 
 % Generate target emitter positions [x; y] (meters)
-numEmitters = 4;       % total number of random emitter locations to create
+numEmitters = 100;       % total number of random emitter locations to create
 targetPos = [randi([emitter_bounds(1) emitter_bounds(2)],1,numEmitters); ...    
     randi([emitter_bounds(3) emitter_bounds(4)],1,numEmitters)]; 
-[Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
-    emitter_bounds(3):emitter_spacing:emitter_bounds(4));
+% [Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
+%     emitter_bounds(3):emitter_spacing:emitter_bounds(4));
 
 % Generate reference station positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... 

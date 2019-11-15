@@ -1,4 +1,4 @@
-function [coords, bias_coords, covar_coords, mse_coords, tdoas] = ...
+function [coords, bias_coords, covar_coords, mse_coords, tdoas, unique] = ...
     get_single_emitter(targetPos, refPos, Ntrials, tx_pwr_dbm, fc, fs, ...
     Nsym, span, sps, fhigh, wlen, nstds, show_plots)
 
@@ -8,7 +8,7 @@ sps_high = fhigh/(fs/sps);    % samples per symbol at high rate
 rsamp = fhigh/fs;
 
 % Generate the signal emitted by the target
-x = generate_signal(Nsym, sps_high, span, show_plots); 
+[x, noise_bw] = generate_signal(Nsym, fs, sps_high, sps, span, show_plots); 
 
 % Add proper delays that correspond to target and emitter locations
 [y1, true_delays, true_tdoas, ranges] = add_delay(x, targetPos, refPos, fhigh, show_plots);
@@ -19,9 +19,10 @@ y2 = lower_samp_rate(y1, rsamp, show_plots);
 
 avg_coords = [0;0];
 MSE_coords = [0 0;0 0];
+unique_avg = 0;
 for nn = 1:Ntrials
     % Add noise at the proper SNR levels for free space path losses
-    y3 = add_noise(y2, tx_pwr_dbm, fc, ranges, show_plots);
+    y3 = add_noise(y2, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
 
     % Estimate the delay using the received signals
     [tdoas, corr_mag_sq, peak_idxs, lags] = ...
@@ -40,11 +41,12 @@ for nn = 1:Ntrials
 %     tdoas2 = tdoas;
 
     % Feed the refined TDOAs to a localization algorithm
-    coords = geo_least_squares(refPos, tdoas2);
+    [coords, unique] = geo_least_squares(refPos, tdoas2);
     
     % Compute statistical performance metrics
     avg_coords = avg_coords + coords; 
     MSE_coords = MSE_coords + (targetPos - coords)*(targetPos-coords)';
+    unique_avg = unique_avg + unique;
 end
 
 avg_coords = avg_coords/Ntrials;
@@ -52,6 +54,8 @@ bias_coords = avg_coords - targetPos;
 MSE_coords = MSE_coords/Ntrials;
 covar_coords = MSE_coords - bias_coords*bias_coords';
 mse_coords = trace(MSE_coords);
+unique_avg = unique_avg/Ntrials;
+unique = unique_avg;
 tdoas = tdoas2;
 end
 

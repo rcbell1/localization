@@ -1,14 +1,14 @@
-function [out] = add_noise(x, tx_pwr_dbm, fc, ranges, show_plots)
+function [out] = add_noise(x, tx_pwr_dbm, noise_bw, fc, ranges, show_plots)
 
 c = 299792458;      % speed of light m/s
 Gr = 0;             % receiver gain dBi, 0 for omnidirectional antenna
 Gt = 0;             % transmitter gain dBi
-thermal_pwr_dbm = -174; % thermal noise at room temp dBm
 lambda = c/fc;      % wavelength of transmitted signal
 
 [nrows, ncols] = size(x);
 
 % free space path loss
+thermal_pwr_dbm = -174 + 10*log10(noise_bw); % thermal noise at room temp dBm
 rx_pwr_dbm = tx_pwr_dbm + Gr + Gt + 20*log10(lambda./(4*pi*ranges)); % dBm
 snrdb = rx_pwr_dbm - thermal_pwr_dbm;
 snr = 10.^(snrdb/10);

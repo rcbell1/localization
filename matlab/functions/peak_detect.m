@@ -45,7 +45,7 @@ if show_plots == 1
     for ii = 1:size(x,2)
         plot(idxs(ii), x(idxs(ii),ii), 'o')
     end
-    axis([idxs(ii)-8 idxs(ii)+5 0.95*xmin 1.05*xmax])
+    axis([idxs(ii)-8 idxs(ii)+15 0.95*xmin 1.05*xmax])
     title('Zoom Peaks')
     xlabel('Sample Number')
     ylabel('|Correlator Out|^2')
