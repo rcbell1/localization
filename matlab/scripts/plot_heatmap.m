@@ -1,15 +1,11 @@
 clear; close all
 addpath('../functions')
 
-plot_hull = 1;          % plot convex hull or ref stations
-emitter_bounds = [-150 150 -150 150];   % bounds of emitter locations
+% General simulation properties
+emitter_bounds = [-150 150 -150 150];   % bounds of emitter locations (m)
 % emitter_bounds = [-700 700 -700 700];   % bounds of emitter locations
-emitter_spacing = 2;   % spacing between test locations in meters
-tx_pwr_dbm = 100;       % emitter transmit power in dBm
-Ntrials = 100;          % number of simulations per emitter location
-fc = 915e6;             % center frequency of transmitter
-[Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
-    emitter_bounds(3):emitter_spacing:emitter_bounds(4));
+emitter_spacing = 2;   % spacing between test emitter locations in meters
+
 % Reference receiver positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... % 10-pnt star
 %           -40 -40 80 40 40 40 40 16 -7 11];   
@@ -19,16 +15,27 @@ fc = 915e6;             % center frequency of transmitter
 %           -50 -50 50 50]; 
 refPos = [0  -40  40 -70 70; ... % 5-pnt star
           80 -40 -40  40 40]; 
-fs = 20e6;              % receiver sample rates (Hz)
-Nsym = 40;              % number of symbols in signals
+Ntrials = 100;          % number of noise instances per emitter location
+fhigh = 50e9;           % high speed sample rate where delays are added (Hz)
 
-span = 20;              % total length of shaping filter in symbols
-sps = 5;                % samples per symbol at the receiver sample rate
-fhigh = 10e9;           % high speed sample rate where delays are added (Hz)
+% Emitter pulse properties
+tx_pwr_dbm = 100;       % emitter transmit power in dBm
+Nsym = 40;              % number of symbols in signals
+span = 10;              % total length of shaping filter in symbols
+sps = 3;                % samples per symbol at the receiver sample rate
+fc = 915e6;             % center frequency of transmitter
+
+% Receiver properties
+fs = 20e6;               % receiver sample rates (Hz)
 wlen = 2*sps+1;         % moving maximum window length in samples, odd number
 nstds = 3;              % number of standard deviations to declare peak
 
 show_plots = 0;         % leave this off for this sim, too many plots
+
+% Create the grid of points based on the emitter bounds set
+[Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
+    emitter_bounds(3):emitter_spacing:emitter_bounds(4));
+
 tic
 [nrows, ncols] = size(Tx);
 parfor ii = 1:nrows

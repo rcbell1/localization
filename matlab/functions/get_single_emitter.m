@@ -26,7 +26,7 @@ for nn = 1:Ntrials
 
     % Estimate the delay using the received signals
     [tdoas, corr_mag_sq, peak_idxs, lags] = ...
-        estimate_delay(y3, wlen, nstds, fs, show_plots);
+        get_tdoa(y3, wlen, nstds, fs, show_plots);
 
     % Refine the tdoas using a super resolution algorithm
     sample_idxs = [peak_idxs-1;peak_idxs;peak_idxs+1];
@@ -41,7 +41,8 @@ for nn = 1:Ntrials
 %     tdoas2 = tdoas;
 
     % Feed the refined TDOAs to a localization algorithm
-    [coords, unique] = geo_least_squares(refPos, tdoas2);
+%     [coords, unique] = geo_lsq(refPos, tdoas2);
+    [coords, unique] = geo_sphere_int(refPos, tdoas2);
     
     % Compute statistical performance metrics
     avg_coords = avg_coords + coords; 

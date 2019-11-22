@@ -4,24 +4,34 @@ addpath('../functions')
 show_plots = 0;         % show plots for debugging
 show_circles = 1;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 1;    % plot hyperbolas to visualize intersection point
-targetPos = [-7; 0];     % target position (meters)
-refPos = [-5 5 0 ; ... % reference receiver positions [x; y] (meters)
-          -5 -5 5 ];  
-% refPos = [0  -40  40 -70 70; ... % 5-pnt star
-%           80 -40 -40  40 40];
-bounds = [-15 15 -15 15];
-tx_pwr_dbm = 100;       % emitter transmit power in dBm
-Ntrials = 1;            % number of simulations per emitter location
-fs = 20e6;              % receiver sample rates (Hz)
-Nsym = 40;              % number of symbols in signals
+targetPos = [-20; -56];    % target position (meters)
+% refPos = [-5 5 0 ; ...  % reference receiver positions [x; y] (meters)
+%           -5 -5 5 ]; 
+% refPos = [-50 50 0; ... % triangle
+%           -50 -50 50];
+refPos = [0  -40  40 -70 70; ... % 5-pnt star
+          0 -40 -40  40 40];
+refPos = refPos - refPos(:,1);
+% bounds = [-15 15 -15 15];
+bounds = [-150 150 -150 150];
+norm(targetPos)
 
+% Emitter pulse properties
+tx_pwr_dbm = 100;       % emitter transmit power in dBm
 fc = 915e6;             % center frequency of transmitter
 span = 20;              % total length of shaping filter in symbols
 sps = 5;                % samples per symbol at the receiver sample rate
-fhigh = 2500*fs;        % high speed sample rate where delays are added (Hz)
+Nsym = 40;              % number of symbols in signals
+
+% Receiver properties
+fs = 20e6;              % receiver sample rates (Hz)
 wlen = 2*sps+1;         % moving maximum window length in samples
 nstds = 6;              % number of standard deviations to declare peak
+
+% General simulation properties
+Ntrials = 1;            % number of simulations per emitter location
 c = 299792458;          % speed of light m/s
+fhigh = 50e9;           % high speed sample rate where delays are added (Hz)
 
 [coords, bias_coords, covar_coords, mse_coords, tdoas] = ...
     get_single_emitter(targetPos, refPos, Ntrials, tx_pwr_dbm, fc, ...
@@ -92,6 +102,12 @@ end
 if show_hyperbolas == 1
     plot_multiple_hyperbolas(refPos, targetPos, tdoas*c, bounds)
 end
+
+% subplot(2,2,3)
+% for ii = 2:numrefs
+%     pairStrings(ii-1) = sprintf("%i1",ii);
+% end
+% uitable('Station Pair',pairStrings)
 
 
 
