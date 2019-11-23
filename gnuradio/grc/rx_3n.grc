@@ -113,7 +113,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>500e6</value>
+      <value>2.5e9</value>
     </param>
   </block>
   <block>
@@ -167,7 +167,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>20</value>
+      <value>30</value>
     </param>
   </block>
   <block>
@@ -194,7 +194,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1e6</value>
+      <value>200e6/22</value>
     </param>
   </block>
   <block>
@@ -221,11 +221,11 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/rbell/Documents/repos/localization/data/rx1.dat</value>
+      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx2.dat</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(544, 164)</value>
+      <value>(596, 146)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -272,7 +272,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/rbell/Documents/repos/localization/data/rx2.dat</value>
+      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx1.dat</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -323,7 +323,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/rbell/Documents/repos/localization/data/rx3.dat</value>
+      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx3.dat</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -370,7 +370,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(328, 108)</value>
+      <value>(460, 156)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -417,11 +417,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 112)</value>
+      <value>(304, 118)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -460,7 +460,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -503,7 +503,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -550,7 +550,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(328, 196)</value>
+      <value>(320, 156)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -691,7 +691,7 @@
     </param>
     <param>
       <key>ant0</key>
-      <value>TX/RX</value>
+      <value>RX2</value>
     </param>
     <param>
       <key>bw0</key>
@@ -1887,7 +1887,7 @@
     </param>
     <param>
       <key>sd_spec0</key>
-      <value>A:0</value>
+      <value>B:0</value>
     </param>
     <param>
       <key>time_source0</key>
@@ -1899,7 +1899,7 @@
     </param>
     <param>
       <key>sd_spec1</key>
-      <value>A:0</value>
+      <value>B:0</value>
     </param>
     <param>
       <key>time_source1</key>
@@ -2024,13 +2024,13 @@
   </block>
   <connection>
     <source_block_id>blocks_head_0</source_block_id>
-    <sink_block_id>blocks_vector_sink_x_0</sink_block_id>
+    <sink_block_id>blocks_file_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>dc_blocker_xx_0</source_block_id>
-    <sink_block_id>blocks_file_sink_0</sink_block_id>
+    <sink_block_id>blocks_head_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -2048,7 +2048,7 @@
   </connection>
   <connection>
     <source_block_id>uhd_usrp_source_0</source_block_id>
-    <sink_block_id>blocks_head_0</sink_block_id>
+    <sink_block_id>blocks_vector_sink_x_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

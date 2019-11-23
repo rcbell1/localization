@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 3N
-# GNU Radio version: 3.7.13.5
+# Generated: Fri Nov 22 19:01:27 2019
 ##################################################
 
 from gnuradio import blocks
@@ -25,10 +25,10 @@ class rx_3n(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 1e6
-        self.rx_gain = rx_gain = 20
+        self.samp_rate = samp_rate = 200e6/22
+        self.rx_gain = rx_gain = 30
         self.nitems_stop = nitems_stop = int(1e6)
-        self.center_freq = center_freq = 500e6
+        self.center_freq = center_freq = 2.5e9
 
         ##################################################
         # Blocks
@@ -42,10 +42,10 @@ class rx_3n(gr.top_block):
         )
         self.uhd_usrp_source_0.set_clock_source('external', 0)
         self.uhd_usrp_source_0.set_time_source('external', 0)
-        self.uhd_usrp_source_0.set_subdev_spec('A:0', 0)
+        self.uhd_usrp_source_0.set_subdev_spec('B:0', 0)
         self.uhd_usrp_source_0.set_clock_source('external', 1)
         self.uhd_usrp_source_0.set_time_source('external', 1)
-        self.uhd_usrp_source_0.set_subdev_spec('A:0', 1)
+        self.uhd_usrp_source_0.set_subdev_spec('B:0', 1)
         self.uhd_usrp_source_0.set_clock_source('external', 2)
         self.uhd_usrp_source_0.set_time_source('external', 2)
         self.uhd_usrp_source_0.set_subdev_spec('B:0', 2)
@@ -53,31 +53,22 @@ class rx_3n(gr.top_block):
         self.uhd_usrp_source_0.set_time_unknown_pps(uhd.time_spec())
         self.uhd_usrp_source_0.set_center_freq(center_freq, 0)
         self.uhd_usrp_source_0.set_gain(rx_gain, 0)
-        self.uhd_usrp_source_0.set_antenna('TX/RX', 0)
-        self.uhd_usrp_source_0.set_auto_dc_offset(False, 0)
-        self.uhd_usrp_source_0.set_auto_iq_balance(False, 0)
+        self.uhd_usrp_source_0.set_antenna('RX2', 0)
         self.uhd_usrp_source_0.set_center_freq(center_freq, 1)
         self.uhd_usrp_source_0.set_gain(rx_gain, 1)
         self.uhd_usrp_source_0.set_antenna('TX/RX', 1)
-        self.uhd_usrp_source_0.set_auto_dc_offset(False, 1)
-        self.uhd_usrp_source_0.set_auto_iq_balance(False, 1)
         self.uhd_usrp_source_0.set_center_freq(center_freq, 2)
         self.uhd_usrp_source_0.set_gain(rx_gain, 2)
         self.uhd_usrp_source_0.set_antenna('RX2', 2)
-        self.uhd_usrp_source_0.set_auto_dc_offset(False, 2)
-        self.uhd_usrp_source_0.set_auto_iq_balance(False, 2)
         self.dc_blocker_xx_0_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0 = filter.dc_blocker_cc(200, True)
-        self.blocks_vector_sink_x_2 = blocks.vector_sink_c(1, 1024)
-        self.blocks_vector_sink_x_1 = blocks.vector_sink_c(1, 1024)
-        self.blocks_vector_sink_x_0 = blocks.vector_sink_c(1, 1024)
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, nitems_stop)
-        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/rbell/Documents/repos/localization/data/rx3.dat', False)
+        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx3.dat', False)
         self.blocks_file_sink_0_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/rbell/Documents/repos/localization/data/rx2.dat', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx1.dat', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/rbell/Documents/repos/localization/data/rx1.dat', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx2.dat', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
 
@@ -85,13 +76,10 @@ class rx_3n(gr.top_block):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_head_0, 0), (self.blocks_vector_sink_x_0, 0))
-        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.dc_blocker_xx_0, 0), (self.blocks_head_0, 0))
         self.connect((self.dc_blocker_xx_0_0, 0), (self.blocks_file_sink_0_0, 0))
         self.connect((self.dc_blocker_xx_0_0_0, 0), (self.blocks_file_sink_0_0_0, 0))
-        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_head_0, 0))
-        self.connect((self.uhd_usrp_source_0, 1), (self.blocks_vector_sink_x_1, 0))
-        self.connect((self.uhd_usrp_source_0, 2), (self.blocks_vector_sink_x_2, 0))
         self.connect((self.uhd_usrp_source_0, 0), (self.dc_blocker_xx_0, 0))
         self.connect((self.uhd_usrp_source_0, 1), (self.dc_blocker_xx_0_0, 0))
         self.connect((self.uhd_usrp_source_0, 2), (self.dc_blocker_xx_0_0_0, 0))

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Tx 1N
-# GNU Radio version: 3.7.13.5
+# Generated: Fri Nov 22 19:01:20 2019
 ##################################################
 
 from gnuradio import blocks
@@ -26,13 +26,13 @@ class tx_1n(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.tx_gain = tx_gain = 0
+        self.tx_gain = tx_gain = 30
         self.sps = sps = 4
         self.span = span = 20
         self.samp_rate = samp_rate = 2e6
         self.prnLen = prnLen = 1000
-        self.nzeros = nzeros = 1
-        self.center_freq = center_freq = 500e6
+        self.nzeros = nzeros = 10000
+        self.center_freq = center_freq = 2.5e9
 
         ##################################################
         # Blocks
@@ -50,7 +50,7 @@ class tx_1n(gr.top_block):
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
         self.root_raised_cosine_filter_0 = filter.interp_fir_filter_ccf(sps, firdes.root_raised_cosine(
         	0.8, sps, 1, 0.35, sps*span))
-        self.blocks_vector_source_x_0 = blocks.vector_source_c(list(np.zeros(nzeros))+list(2*np.random.randint(0,2,size=prnLen)-1)+list(np.zeros(nzeros)), True, 1, [])
+        self.blocks_vector_source_x_0 = blocks.vector_source_c(list(np.zeros(int(nzeros/2)))+list(2*np.random.randint(0,2,size=prnLen)-1)+list(np.zeros(int(nzeros/2))), True, 1, [])
 
 
 
@@ -94,14 +94,14 @@ class tx_1n(gr.top_block):
 
     def set_prnLen(self, prnLen):
         self.prnLen = prnLen
-        self.blocks_vector_source_x_0.set_data(list(np.zeros(self.nzeros))+list(2*np.random.randint(0,2,size=self.prnLen)-1)+list(np.zeros(self.nzeros)), [])
+        self.blocks_vector_source_x_0.set_data(list(np.zeros(int(self.nzeros/2)))+list(2*np.random.randint(0,2,size=self.prnLen)-1)+list(np.zeros(int(self.nzeros/2))), [])
 
     def get_nzeros(self):
         return self.nzeros
 
     def set_nzeros(self, nzeros):
         self.nzeros = nzeros
-        self.blocks_vector_source_x_0.set_data(list(np.zeros(self.nzeros))+list(2*np.random.randint(0,2,size=self.prnLen)-1)+list(np.zeros(self.nzeros)), [])
+        self.blocks_vector_source_x_0.set_data(list(np.zeros(int(self.nzeros/2)))+list(2*np.random.randint(0,2,size=self.prnLen)-1)+list(np.zeros(int(self.nzeros/2))), [])
 
     def get_center_freq(self):
         return self.center_freq
