@@ -1,22 +1,26 @@
 function [coords, bias_coords, covar_coords, mse_coords, tdoas, unique] = ...
     get_single_emitter(targetPos, refPos, Ntrials, tx_pwr_dbm, fc, fs, ...
-    Nsym, span, sps, fhigh, wlen, nstds, show_plots)
+    fsym, Nsym, span, sps, beta, fhigh, wlen, nstds, show_plots)
 
 % fratio = ceil(fhigh/fs);
 % sps_high = sps*fratio;      % add delays at high time resolution
-sps_high = fhigh/(fs/sps);    % samples per symbol at high rate
-rsamp = fhigh/fs;
+% sps_high = fhigh/(fs/sps);  % samples per symbol at high rate
+sps_high = fhigh/fsym;      % samples per symbol at high rate
+resample_rate = fhigh/fs;   % resample rate to get to receiver sample rate
 
 % Generate the signal emitted by the target
-[x, noise_bw] = generate_signal(Nsym, fs, sps_high, sps, span, show_plots); 
+[x, noise_bw] = generate_signal(Nsym, fsym, sps_high, sps, span, beta, ...
+    show_plots); 
 
 % Add proper delays that correspond to target and emitter locations
-[y1, true_delays, true_tdoas, ranges] = add_delay(x, targetPos, refPos, fhigh, show_plots);
+[y1, true_delays, true_tdoas, ranges] = add_delay(x, targetPos, refPos, ...
+    fhigh, show_plots);
 
 % Downsample the signals so they correspond to the receiver sample rate
 % This will cause fractional delay offsets that will exist when correlating
-y2 = lower_samp_rate(y1, rsamp, show_plots);
-
+y2 = lower_samp_rate(y1, resample_rate, show_plots);
+targetPos
+true_tdoas
 avg_coords = [0;0];
 MSE_coords = [0 0;0 0];
 unique_avg = 0;

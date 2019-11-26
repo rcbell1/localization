@@ -1,4 +1,4 @@
-function [coords, unique] = geo_ls(refPos, tdoas)
+function [coords, unique] = geo_sphere_int(refPos, tdoas)
 % This function implements the spherical interpolation algorithm presented
 % in "The Spherical Interpolcation Method of Source Localization" by Smith
 % and Abel
@@ -29,7 +29,5 @@ coords = 0.5*S\(delta - 2*Rs*d);
 
 % Translate the origin back
 coords = coords + refPos(:,1);
-
- 
 end
 

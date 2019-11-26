@@ -1,49 +1,51 @@
 clear; close all
 addpath('../functions')
 
-% General simulation properties
-emitter_bounds = [-150 150 -150 150];   % bounds of emitter locations (m)
-% emitter_bounds = [-700 700 -700 700];   % bounds of emitter locations
-emitter_spacing = 2;   % spacing between test emitter locations in meters
+%% General simulation properties
+% emitter_bounds = [-150 150 -150 150];   % bounds of emitter locations (m)
+emitter_bounds = [-7000 7000 -7000 7000];   % bounds of emitter locations
+emitter_spacing = 100;   % spacing between test emitter locations in meters
 
 % Reference receiver positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... % 10-pnt star
 %           -40 -40 80 40 40 40 40 16 -7 11];   
-% refPos = [-50 50 0; ... % triangle
-%           -50 -50 50]; 
+refPos = [-50 50 0; ... % triangle
+          -50 -50 50]; 
 % refPos = [50 -50 -50 50 ; ... % square
 %           -50 -50 50 50]; 
-refPos = [0  -40  40 -70 70; ... % 5-pnt star
-          80 -40 -40  40 40]; 
+% refPos = [0  -40  40 -70 70; ... % 5-pnt star
+%           80 -40 -40  40 40]; 
 Ntrials = 100;          % number of noise instances per emitter location
 fhigh = 50e9;           % high speed sample rate where delays are added (Hz)
 
-% Emitter pulse properties
-tx_pwr_dbm = 100;       % emitter transmit power in dBm
+%% Emitter pulse properties
+tx_pwr_dbm = 0;         % emitter transmit power in dBm
 Nsym = 40;              % number of symbols in signals
+fsym = 4e6;             % symbol rate of transmitter (signal bandwidth)
 span = 10;              % total length of shaping filter in symbols
-sps = 3;                % samples per symbol at the receiver sample rate
+sps = 4;                % samples per symbol at the transmitter
+beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 fc = 915e6;             % center frequency of transmitter
 
-% Receiver properties
-fs = 20e6;               % receiver sample rates (Hz)
-wlen = 2*sps+1;         % moving maximum window length in samples, odd number
-nstds = 3;              % number of standard deviations to declare peak
+%% Receiver properties
+fs = 20e6;                % receiver sample rates (Hz)
+wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples, odd number
+nstds = 3;                % number of standard deviations to declare peak
 
-show_plots = 0;         % leave this off for this sim, too many plots
-
+%% Simulation
 % Create the grid of points based on the emitter bounds set
 [Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
     emitter_bounds(3):emitter_spacing:emitter_bounds(4));
 
 tic
 [nrows, ncols] = size(Tx);
-parfor ii = 1:nrows
+for ii = 1:nrows
     for jj = 1:ncols
         targetPos = [Tx(ii,jj); Ty(ii,jj)];
         [~, ~, ~, mse_coords(ii,jj), ~, unique(ii,jj)] = ...
             get_single_emitter(targetPos, refPos, Ntrials, tx_pwr_dbm, ...
-            fc, fs, Nsym, span, sps, fhigh, wlen, nstds, show_plots);
+            fc, fs, fsym, Nsym, span, sps, beta, fhigh, wlen, nstds, ...
+            0);
     end
 end
 run_time = toc/60;
@@ -97,6 +99,7 @@ for ii = 1:numrefs
     set(h, 'Color',[1, 1 ,1])
 end
 
+
 % Check condition number of A to make sure its not a problem. This only
 % depends on the reference station placements
 x1 = refPos(1,1);
@@ -105,6 +108,5 @@ for ii = 2:size(refPos,2)
     A(:,ii-1) = refPos(:,1) - refPos(:,ii);    
 end
 A = A.';
-
 fprintf(1,'\nTotal Runtime: %2.1f min \nMatrix Condition Number: %4.2f\n\n', ...
     run_time, cond(A));
