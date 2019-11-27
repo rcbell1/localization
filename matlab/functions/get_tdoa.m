@@ -15,8 +15,20 @@ corr_mag_sq = abs(corr_out).^2;
 % Find the peaks within the window of length wlen
 peak_idxs = peak_detect(corr_mag_sq, wlen, nstds, show_plots);
 
-tdoas = lags(peak_idxs)*Ts;
-lags = lags(peak_idxs);
+if sum(isnan(peak_idxs)) > 0 
+    nanidx = isnan(peak_idxs);
+    goodidx = ~isnan(peak_idxs);
+    fprintf(1,'\n\nNot enough peaks detected\n\n')
+    tdoas(nanidx) = NaN;
+    tdoas(goodidx) = lags(goodidx)*Ts;
+    lags(nanidx) = NaN;
+    lags(goodidx) = lags(goodidx);
+else
+    tdoas = lags(peak_idxs)*Ts;
+    lags = lags(peak_idxs);
+end
+
+
 
 % plot(corr_out)
 % legend('12','13')

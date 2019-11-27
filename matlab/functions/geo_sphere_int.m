@@ -1,13 +1,12 @@
 function [coords, unique] = geo_sphere_int(refPos, tdoas)
 % This function implements the spherical interpolation algorithm presented
 % in "The Spherical Interpolcation Method of Source Localization" by Smith
-% and Abel
+% and Abel. It requires at least four ref stations for 2D localization
 
 c = 299792458;              % speed of light m/s
 unique = 1;                 % is solution unique?
 
-% translate the spatial origin to the first sensor location. Add this back
-% to the final solution
+% translate the spatial origin to the first sensor location
 refPos_t = refPos - refPos(:,1);
 
 S = refPos_t(:,2:end).';
@@ -25,9 +24,10 @@ Rs = 0.5*numerator/denom;
 % paren = delta - 2*Rs*d;
 % coords1 = 0.5*S\paren;
 
-coords = 0.5*S\(delta - 2*Rs*d);
+coords = 0.5*(S\(delta - 2*Rs*d)); % parenthesis really important here!
+coords(isnan(coords)) = inf;   % random big number
 
-% Translate the origin back
+% Translate the origin back to original location
 coords = coords + refPos(:,1);
 end
 

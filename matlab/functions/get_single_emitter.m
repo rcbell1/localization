@@ -19,8 +19,7 @@ resample_rate = fhigh/fs;   % resample rate to get to receiver sample rate
 % Downsample the signals so they correspond to the receiver sample rate
 % This will cause fractional delay offsets that will exist when correlating
 y2 = lower_samp_rate(y1, resample_rate, show_plots);
-targetPos
-true_tdoas
+
 avg_coords = [0;0];
 MSE_coords = [0 0;0 0];
 unique_avg = 0;
@@ -37,7 +36,11 @@ for nn = 1:Ntrials
     lags = [lags-1;lags;lags+1];
     numpairs = size(corr_mag_sq,2); % number of correlated pairs of receivers
     for ii = 1:numpairs
-        corr_peak_samples(:,ii) = corr_mag_sq(sample_idxs(:,ii), ii);
+        if isnan(sample_idxs(:,ii))
+            corr_peak_samples(:,ii) = NaN;
+        else
+            corr_peak_samples(:,ii) = corr_mag_sq(sample_idxs(:,ii), ii);
+        end
     end
     [tdoas2, diffs] = refine_tdoa(lags, corr_peak_samples, fs, show_plots);
     % abs(true_tdoas-tdoas)./true_tdoas

@@ -13,11 +13,12 @@ idx_max = idx_max + floor(wlen/2);  % the center of the window is true max
 xmean = mean(x);
 xstd = std(x);
 
+idxs = [];
 for ii = 1:size(x,2)
     if (x(idx_max(ii),ii) - xmean(ii)) > nstds*xstd(ii)
         idxs(ii) = idx_max(ii);
     else
-        idxs(ii) = [];
+        idxs(ii) = NaN;
     end
 end
 
