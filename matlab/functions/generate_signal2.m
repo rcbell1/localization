@@ -1,10 +1,10 @@
-function [out, noise_bw] = generate_signal(Nsym, fsym, sps_high, sps, span, beta, show_plots)
+function [out, noise_bw] = generate_signal(Nsym, fsym, sps, span, beta, show_plots)
 
 noise_bw = fsym*(beta+1);
 
 x1 = 2*randi([0 1], Nsym, 1)-1;
-x2 = upsample(x1,sps_high);
-rrc = rcosdesign(beta, span, sps_high);
+x2 = upsample(x1,sps);
+rrc = rcosdesign(beta, span, sps);
 rrc = rrc/max(rrc);
 
 out = conv(rrc, x2);
@@ -25,7 +25,7 @@ if show_plots == 1
     title('Emitter Pulse Shape')
     xlabel('Sample Number')
     ylabel('Amplitude')
-    text(length(rrc)/5,0.5,sprintf('Root Raised Cosine\nBeta = %2.1f\nSpan = %i Symbols\nSps = %i', beta, span, sps_high));
+    text(length(rrc)/5,0.5,sprintf('Root Raised Cosine\nBeta = %2.1f\nSpan = %i Symbols\nSps = %i', beta, span, sps));
     
     subplot(4,1,3)
     plot(out)
@@ -35,13 +35,13 @@ if show_plots == 1
     ylabel('Amplitude')
     
     subplot(4,1,4)
-    fs_m = fsym*sps_high/1e6; % MHz
+    fs_m = fsym*sps/1e6; % MHz
     flen = length(rrc);
     w=kaiser(flen,8)';
     w=w/sum(w);
     fsym_m = fsym/1e6;
     Nfft = 2*2^nextpow2(length(w));
-    faxis = sps_high*fsym_m*(-0.5:1/Nfft:0.5-1/Nfft);
+    faxis = sps*fsym_m*(-0.5:1/Nfft:0.5-1/Nfft);
     spec = abs(1/Nfft*fft(rrc.*w,Nfft));
     spec = spec/max(spec);
     spec = fftshift(10*log10(spec));

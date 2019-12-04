@@ -4,14 +4,15 @@ addpath('../functions')
 show_plots = 1;         % show plots for debugging
 show_circles = 1;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 1;    % plot hyperbolas to visualize intersection point
-targetPos = [-65; 25];    % target position (meters)
+% targetPos = [0; -5];    % target position (meters)
+targetPos = [10000; 10000];
 % refPos = [-5 5 0 ; ...  % reference receiver positions [x; y] (meters)
 %           -5 -5 5 ]; 
 % refPos = [-50 50 0; ... % triangle
 %           -50 -50 50];
 % refPos = [50 -50 -50 50 ; ... % square
 %           -50 -50 50 50];
-a = 100;
+a = 5;
 refPos = -[a/2; a/(3*sqrt(2))] + ... % centered triangle
     [ 0  a    a/2; ... 
       0  0      a/sqrt(2)];
@@ -22,45 +23,37 @@ refPos = [[0;0] refPos];
 %            0 -40 -40  40 40 -100 100];
 % refPos = refPos - refPos(:,1);
 % targetPos = [60; 60] - refPos(:,1);
-% bounds = [-15 15 -15 15];
-bounds = [-150 150 -150 150];
+bounds = [-10000 10000 -10000 10000];
+% bounds = [-150 150 -150 150];
 
 % Emitter pulse properties
-tx_pwr_dbm = 0;         % emitter transmit power in dBm
-fc = 2.4e9;             % center frequency of transmitter
+tx_pwr_dbm = 7;         % emitter transmit power in dBm
+fc = 915e6;             % center frequency of transmitter
 span = 10;              % total length of shaping filter in symbols
 sps = 4;                % samples per symbol at the receiver sample rate
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 Nsym = 40;              % number of symbols in signals
-fsym = 5e6;             % symbol rate of transmitter (signal bandwidth)
+fsym = 9e6;             % symbol rate of transmitter (signal bandwidth)
 
 % Receiver properties
 fs = 20e6;                % receiver sample rates (Hz)
 wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples
-nstds = 5;                % number of standard deviations to declare peak
-percent_of_peak = 0.5;    % get the number of samples needed on either side 
+nstds = 12;                % number of standard deviations to declare peak
+percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
 
 % General simulation properties
 c = 299792458;          % speed of light m/s
-fhigh = 50e9;           % high speed sample rate where delays are added (Hz)
-
-% Determine the value of fhigh that is above requested and an integer
-% multiple of fs and fsym to faciliate resampling later
-flcm = lcm(fs,fsym);
-if flcm < fhigh
-    mult = ceil(fhigh/flcm);
-    fhigh = flcm*mult; % nearest integer multiple of fs and fsym above fhigh
-end
 
 %% Estimate the location
 [coords, bias_coords, covar_coords, mse_coords, tdoas] = ...
-    get_single_emitter(targetPos, refPos, 1, tx_pwr_dbm, fc, ...
-    fs, fsym, Nsym, span, sps, beta, fhigh, wlen, nstds, percent_of_peak,...
+    get_single_emitter2(targetPos, refPos, 1, tx_pwr_dbm, fc, ...
+    fs, fsym, Nsym, span, sps, beta, wlen, nstds, percent_of_peak,...
     show_plots);
 
 %% Plots
+% Plot localization results
 figure
 subplot(1,2,1)
 numrefs = size(refPos,2);
@@ -91,7 +84,8 @@ legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Locati
 
 % Plot time contours
 tbounds = 2*bounds;
-[tx,ty] = meshgrid(tbounds(1):tbounds(2),tbounds(3):tbounds(4));
+steps = round(.1*tbounds);
+[tx,ty] = meshgrid(tbounds(1):steps:tbounds(2),tbounds(3):steps:tbounds(4));
 tx2 = tx - targetPos(1);
 ty2 = ty - targetPos(2);
 tz = sqrt(tx2.^2+ty2.^2)/c*1e9;

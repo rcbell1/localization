@@ -14,15 +14,9 @@ d = c*tdoas';
 delta = vecnorm(S,2,2).^2 - d.^2;
 
 % Using backslash is better than pinv numerically
-% T = eye(N)-S*pinv(S);
-% numerator = d.'*T*delta;
-% denom = d.'*T*d;
 numerator = d.'*delta - d.'*S*(S\delta);
 denom = d.'*d - d.'*S*(S\d);
 Rs = 0.5*numerator/denom;
-
-% paren = delta - 2*Rs*d;
-% coords1 = 0.5*S\paren;
 
 coords = 0.5*(S\(delta - 2*Rs*d)); % parenthesis really important here!
 coords(isnan(coords)) = inf;   % random big number
