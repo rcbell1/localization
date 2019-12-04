@@ -18,6 +18,13 @@ std_noise = sqrt(noise_pwr/2);
 rx_pwr_dbm = tx_pwr_dbm + Gr + Gt + 20*log10(lambda./(4*pi*ranges)); % dBm
 rx_pwr = 10.^(rx_pwr_dbm/10);
 
+% If a test location lines up with a ref node range = 0 causes pwr to be
+% inf. Change it to 1 representing no change to signal
+inf_idx = isinf(rx_pwr);
+if sum(inf_idx)
+    rx_pwr(inf_idx) = 1;
+end
+
 x_norm = sqrt(rx_pwr).*x;
 
 % snrdb = rx_pwr_dbm - noise_pwr_dbm;

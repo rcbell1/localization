@@ -3,9 +3,9 @@ addpath('../functions')
 
 %% General simulation properties
 Ntrials = 100;          % number of noise instances per emitter location
-emitter_bounds = [-20000 20000 -20000 20000];   % bounds of emitter locations (m)
-% emitter_bounds = [-300 300 -300 300];   % bounds of emitter locations
-emitter_spacing = 200;   % spacing between test emitter locations in meters
+% emitter_bounds = [-10000 10000 -10000 10000];   % Good for prob detection plots
+emitter_bounds = [-10 10 -10 10];   % bounds of emitter locations
+emitter_spacing = 0.1;   % spacing between test emitter locations in meters
 
 % Reference receiver positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... % 10-pnt star
@@ -15,9 +15,11 @@ emitter_spacing = 200;   % spacing between test emitter locations in meters
 % refPos = [50 -50 -50 50 ; ... % square
 %           -50 -50 50 50]; 
 a = 5;     % length of one side of desired equilateral triangle
-refPos = -[a/2; a/(3*sqrt(2))] + ... % centered equilateral triangle
-    [ 0  a    a/2; ... 
-      0  0      a/sqrt(2)];
+b = sqrt(3)*a/2;
+refPos = [ 0  a          a/2; ...   % equilateral triangle
+           0  0      sqrt(3)*a/2];
+center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];
+refPos = -center + refPos; % origin centered equilateral triangle
 refPos = [[0;0] refPos];
 % refPos = [0 -50 50 0; ... % centered triangle
 %           0 -50 -50 50];
@@ -25,7 +27,7 @@ refPos = [[0;0] refPos];
 %           80 -40 -40  40 40]; 
 
 %% Emitter pulse properties
-tx_pwr_dbm = 7;         % emitter transmit power in dBm
+tx_pwr_dbm = 7;         % emitter transmit power in dBm (USRP max is 10 dBm)
 Nsym = 40;              % number of symbols in signals
 fsym = 5e6;             % symbol rate of transmitter (signal bandwidth)
 span = 10;              % total length of shaping filter in symbols
@@ -61,21 +63,22 @@ end
 run_time = toc/60;
 
 %% Plots
-% First plot the RMSE
+rmse_coords = sqrt(mse_coords);
 [ndims, numrefs] = size(refPos);
 
+% First plot the RMSE using pcolor
 figure
-imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
-    emitter_bounds(4)], sqrt(mse_coords)); hold all
-h = colorbar;           % displays the colorbar legend
-cmap = colormap('jet');         % sets the colors used
-cmap_new = colormap([[1 1 1];cmap]);
+hpc = pcolor(Tx, Ty, rmse_coords); hold all
+colormap('jet')
+h = colorbar;
 caxis([0 4])           % sets the limits of the colormap
-set(gca,'YDir','normal')% keeps y-axis correct orientation
+set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
+set(hpc, 'EdgeColor', 'none')
+hpc.FaceColor = 'interp';
 xlabel('x (m)')
 ylabel('y (m)')
 title('Localization RMSE Performance')
-title(h,sprintf('RMSE\n(m)'))
+title(h, sprintf('RMSE\n(m)'))
 
 for ii = 1:numrefs
     plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
@@ -89,14 +92,14 @@ h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
 set(h, 'Color',[1, 1 ,1])
 
-% Probability of detection plot
+% Plot probability of detection using pcolor
 figure
-imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
-    emitter_bounds(4)], prob_detection); hold all
-h = colorbar;           % displays the colorbar legend
-colormap(cmap_new)         % sets the colors used
+hpc = pcolor(Tx, Ty, prob_detection); hold all
+colormap('jet')
+h = colorbar;
 caxis([0 1])           % sets the limits of the colormap
-set(gca,'YDir','normal')% keeps y-axis correct orientation
+set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
+set(hpc, 'EdgeColor', 'none')
 xlabel('x (m)')
 ylabel('y (m)')
 title('Probability of Detection')
@@ -114,14 +117,14 @@ h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
 set(h, 'Color',[1, 1 ,1])
 
-% Probability of correlation plot
+% Plot probability of correlation using pcolor
 figure
-imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
-    emitter_bounds(4)], prob_correlation); hold all
-h = colorbar;           % displays the colorbar legend
-colormap(cmap_new)         % sets the colors used
+hpc = pcolor(Tx, Ty, prob_correlation); hold all
+colormap('jet')
+h = colorbar;
 caxis([0 1])           % sets the limits of the colormap
-set(gca,'YDir','normal')% keeps y-axis correct orientation
+set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
+set(hpc, 'EdgeColor', 'none')
 xlabel('x (m)')
 ylabel('y (m)')
 title('Probability of Correlation')
@@ -139,8 +142,96 @@ h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
 set(h, 'Color',[1, 1 ,1])
 
-fprintf(1,'\nTotal Runtime: %2.1f min\n\n', ...
-    run_time);
+
+
+
+
+
+
+
+
+
+% Plot the RMSE using imagesc
+% I can't find a way to handle nans that doesn't effect other colors using
+% imagesc. This isn't a problem when using pcolor
+% figure
+% cmap = colormap('jet');         % sets the colors used
+% colormap(cmap)
+% imgHand = imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
+%     emitter_bounds(4)], rmse_coords); hold all
+% h = colorbar;           % displays the colorbar legend
+% 
+% caxis([0 4])           % sets the limits of the colormap
+% set(gca,'YDir','normal')% keeps y-axis correct orientation
+% xlabel('x (m)')
+% ylabel('y (m)')
+% title('Localization RMSE Performance')
+% title(h,sprintf('RMSE\n(m)'))
+% 
+% for ii = 1:numrefs
+%     plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
+%         'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
+%     h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
+%         'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
+%         'FontSize', 6);
+%     set(h, 'Color',[1, 1 ,1])
+% end
+% h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
+%     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
+% set(h, 'Color',[1, 1 ,1])
+% 
+% % Probability of detection plot
+% figure
+% imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
+%     emitter_bounds(4)], prob_detection); hold all
+% h = colorbar;           % displays the colorbar legend
+% colormap('jet')         % sets the colors used
+% caxis([0 1])           % sets the limits of the colormap
+% set(gca,'YDir','normal')% keeps y-axis correct orientation
+% xlabel('x (m)')
+% ylabel('y (m)')
+% title('Probability of Detection')
+% title(h,sprintf('Probability'))
+% 
+% for ii = 1:numrefs
+%     plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
+%         'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
+%     h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
+%         'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
+%         'FontSize', 6);
+%     set(h, 'Color',[1, 1 ,1])
+% end
+% h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
+%     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
+% set(h, 'Color',[1, 1 ,1])
+% 
+% % Probability of correlation plot
+% figure
+% imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
+%     emitter_bounds(4)], prob_correlation); hold all
+% h = colorbar;           % displays the colorbar legend
+% colormap('jet')         % sets the colors used
+% caxis([0 1])           % sets the limits of the colormap
+% set(gca,'YDir','normal')% keeps y-axis correct orientation
+% xlabel('x (m)')
+% ylabel('y (m)')
+% title('Probability of Correlation')
+% title(h,sprintf('Probability'))
+% 
+% for ii = 1:numrefs
+%     plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
+%         'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
+%     h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
+%         'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
+%         'FontSize', 6);
+%     set(h, 'Color',[1, 1 ,1])
+% end
+% h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
+%     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
+% set(h, 'Color',[1, 1 ,1])
+% 
+% fprintf(1,'\nTotal Runtime: %2.1f min\n\n', ...
+%     run_time);
 
 % Plot the uniqueness of solutions 
 % figure

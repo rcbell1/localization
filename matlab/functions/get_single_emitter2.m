@@ -77,7 +77,6 @@ for nn = 1:Ntrials
         coords = nan*ones(numdims,1);
     end
 end
-
 avg_coords = avg_coords/Ntrials_with_peak;
 bias_coords = avg_coords - targetPos;
 MSE_coords = MSE_coords/Ntrials_with_peak;
@@ -85,6 +84,10 @@ covar_coords = MSE_coords - bias_coords*bias_coords';
 mse_coords = trace(MSE_coords);
 unique_avg = unique_avg/Ntrials_with_peak;
 unique = unique_avg;
+        if sum(isnan(mse_coords))
+            t = 1;
+        end
+
 
 tdoas = tdoas2;
 prob_correlation = 1 - total_missed_peaks/(numpairs*Ntrials);
