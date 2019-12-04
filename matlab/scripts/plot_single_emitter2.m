@@ -5,7 +5,7 @@ show_plots = 1;         % show plots for debugging
 show_circles = 1;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 1;    % plot hyperbolas to visualize intersection point
 % targetPos = [0; -5];    % target position (meters)
-targetPos = [10000; 10000];
+targetPos = [100000; 100000];
 % refPos = [-5 5 0 ; ...  % reference receiver positions [x; y] (meters)
 %           -5 -5 5 ]; 
 % refPos = [-50 50 0; ... % triangle
@@ -23,7 +23,7 @@ refPos = [[0;0] refPos];
 %            0 -40 -40  40 40 -100 100];
 % refPos = refPos - refPos(:,1);
 % targetPos = [60; 60] - refPos(:,1);
-bounds = [-10000 10000 -10000 10000];
+bounds = [-30 30 -30 30];
 % bounds = [-150 150 -150 150];
 
 % Emitter pulse properties
@@ -33,12 +33,12 @@ span = 10;              % total length of shaping filter in symbols
 sps = 4;                % samples per symbol at the receiver sample rate
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 Nsym = 40;              % number of symbols in signals
-fsym = 9e6;             % symbol rate of transmitter (signal bandwidth)
+fsym = 5e6;             % symbol rate of transmitter (signal bandwidth)
 
 % Receiver properties
 fs = 20e6;                % receiver sample rates (Hz)
 wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples
-nstds = 12;                % number of standard deviations to declare peak
+nstds = 7;                % number of standard deviations to declare peak
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution

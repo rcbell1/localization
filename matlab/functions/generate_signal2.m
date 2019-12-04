@@ -8,6 +8,7 @@ rrc = rcosdesign(beta, span, sps);
 rrc = rrc/max(rrc);
 
 out = conv(rrc, x2);
+out = out/sqrt(mean(abs(out).^2)); % normalize power to 1
 % out = filter(rrc,1,x2);
 
 if show_plots == 1

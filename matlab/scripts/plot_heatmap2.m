@@ -3,9 +3,9 @@ addpath('../functions')
 
 %% General simulation properties
 Ntrials = 100;          % number of noise instances per emitter location
-emitter_bounds = [-10 10 -10 10];   % bounds of emitter locations (m)
+emitter_bounds = [-20000 20000 -20000 20000];   % bounds of emitter locations (m)
 % emitter_bounds = [-300 300 -300 300];   % bounds of emitter locations
-emitter_spacing = 0.1;   % spacing between test emitter locations in meters
+emitter_spacing = 200;   % spacing between test emitter locations in meters
 
 % Reference receiver positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... % 10-pnt star
@@ -14,7 +14,7 @@ emitter_spacing = 0.1;   % spacing between test emitter locations in meters
 %           -50 -50 50]; 
 % refPos = [50 -50 -50 50 ; ... % square
 %           -50 -50 50 50]; 
-a = 4;     % length of one side of desired equilateral triangle
+a = 5;     % length of one side of desired equilateral triangle
 refPos = -[a/2; a/(3*sqrt(2))] + ... % centered equilateral triangle
     [ 0  a    a/2; ... 
       0  0      a/sqrt(2)];
@@ -27,7 +27,7 @@ refPos = [[0;0] refPos];
 %% Emitter pulse properties
 tx_pwr_dbm = 7;         % emitter transmit power in dBm
 Nsym = 40;              % number of symbols in signals
-fsym = 9e6;             % symbol rate of transmitter (signal bandwidth)
+fsym = 5e6;             % symbol rate of transmitter (signal bandwidth)
 span = 10;              % total length of shaping filter in symbols
 sps = 4;                % samples per symbol at the transmitter
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
@@ -68,7 +68,8 @@ figure
 imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
     emitter_bounds(4)], sqrt(mse_coords)); hold all
 h = colorbar;           % displays the colorbar legend
-colormap('jet')         % sets the colors used
+cmap = colormap('jet');         % sets the colors used
+cmap_new = colormap([[1 1 1];cmap]);
 caxis([0 4])           % sets the limits of the colormap
 set(gca,'YDir','normal')% keeps y-axis correct orientation
 xlabel('x (m)')
@@ -93,7 +94,7 @@ figure
 imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
     emitter_bounds(4)], prob_detection); hold all
 h = colorbar;           % displays the colorbar legend
-colormap('jet')         % sets the colors used
+colormap(cmap_new)         % sets the colors used
 caxis([0 1])           % sets the limits of the colormap
 set(gca,'YDir','normal')% keeps y-axis correct orientation
 xlabel('x (m)')
@@ -118,7 +119,7 @@ figure
 imagesc([emitter_bounds(1) emitter_bounds(2)],[emitter_bounds(3) ...
     emitter_bounds(4)], prob_correlation); hold all
 h = colorbar;           % displays the colorbar legend
-colormap('jet')         % sets the colors used
+colormap(cmap_new)         % sets the colors used
 caxis([0 1])           % sets the limits of the colormap
 set(gca,'YDir','normal')% keeps y-axis correct orientation
 xlabel('x (m)')
