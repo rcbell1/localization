@@ -28,7 +28,15 @@ unique_avg = 0;
 total_missed_peaks = 0;
 detection_count = 0;
 Ntrials_with_peak = Ntrials;    % if a peak is missed we skip a trial
+coords = [inf;inf];
 for nn = 1:Ntrials
+%         if sum(sum(isnan(MSE_coords)))
+%             t = 1;
+%         elseif sum(sum(isnan(avg_coords)))
+%             t = 2;
+%         elseif sum(sum(isnan(coords)))
+%             t = 3;
+%         end
     % Add noise at the proper SNR levels for free space path losses
     y3 = add_noise(y2, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
 
@@ -71,10 +79,18 @@ for nn = 1:Ntrials
         avg_coords = avg_coords + coords; 
         MSE_coords = MSE_coords + (targetPos - coords)*(targetPos-coords)';
         unique_avg = unique_avg + unique;
+        
+%         if sum(sum(isnan(MSE_coords)))
+%             t = 1;
+%         elseif sum(sum(isnan(avg_coords)))
+%             t = 2;
+%         elseif sum(sum(isnan(coords)))
+%             t = 3;
+%         end
     else
         Ntrials_with_peak = Ntrials_with_peak - 1;
         tdoas2 = nan*ones(1,numpairs);
-        coords = nan*ones(numdims,1);
+%         coords = nan*ones(numdims,1);
     end
 end
 avg_coords = avg_coords/Ntrials_with_peak;
@@ -84,9 +100,7 @@ covar_coords = MSE_coords - bias_coords*bias_coords';
 mse_coords = trace(MSE_coords);
 unique_avg = unique_avg/Ntrials_with_peak;
 unique = unique_avg;
-        if sum(isnan(mse_coords))
-            t = 1;
-        end
+
 
 
 tdoas = tdoas2;

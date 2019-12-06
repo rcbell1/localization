@@ -5,7 +5,7 @@ noise_bw = fsym*(beta+1);
 x1 = 2*randi([0 1], Nsym, 1)-1;
 x2 = upsample(x1,sps);
 rrc = rcosdesign(beta, span, sps);
-rrc = rrc/max(rrc);
+rrc = rrc.'/max(rrc);
 
 out = conv(rrc, x2);
 out = out/sqrt(mean(abs(out).^2)); % normalize power to 1

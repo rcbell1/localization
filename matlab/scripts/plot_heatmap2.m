@@ -4,8 +4,8 @@ addpath('../functions')
 %% General simulation properties
 Ntrials = 100;          % number of noise instances per emitter location
 % emitter_bounds = [-10000 10000 -10000 10000];   % Good for prob detection plots
-emitter_bounds = [-10 10 -10 10];   % bounds of emitter locations
-emitter_spacing = 0.1;   % spacing between test emitter locations in meters
+emitter_bounds = [-20 20 -20 20];   % bounds of emitter locations
+emitter_spacing = 0.2;   % spacing between test emitter locations in meters
 
 % Reference receiver positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... % 10-pnt star
@@ -18,7 +18,7 @@ a = 5;     % length of one side of desired equilateral triangle
 b = sqrt(3)*a/2;
 refPos = [ 0  a          a/2; ...   % equilateral triangle
            0  0      sqrt(3)*a/2];
-center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];
+center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];       
 refPos = -center + refPos; % origin centered equilateral triangle
 refPos = [[0;0] refPos];
 % refPos = [0 -50 50 0; ... % centered triangle
@@ -29,14 +29,14 @@ refPos = [[0;0] refPos];
 %% Emitter pulse properties
 tx_pwr_dbm = 7;         % emitter transmit power in dBm (USRP max is 10 dBm)
 Nsym = 40;              % number of symbols in signals
-fsym = 5e6;             % symbol rate of transmitter (signal bandwidth)
+fsym = 1.4e6;             % symbol rate of transmitter (signal bandwidth)
 span = 10;              % total length of shaping filter in symbols
 sps = 4;                % samples per symbol at the transmitter
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 fc = 915e6;             % center frequency of transmitter
 
 %% Receiver properties
-fs = 20e6;                % receiver sample rates (Hz)
+fs = 100e6;                % receiver sample rates (Hz)
 wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples, odd number
 nstds = 9;                % number of standard deviations to declare peak
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
@@ -62,6 +62,8 @@ parfor ii = 1:nrows
 end
 run_time = toc/60;
 
+fprintf(1,'\nTotal Runtime: %2.1f min\n\n', run_time);
+
 %% Plots
 rmse_coords = sqrt(mse_coords);
 [ndims, numrefs] = size(refPos);
@@ -74,7 +76,7 @@ h = colorbar;
 caxis([0 4])           % sets the limits of the colormap
 set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
 set(hpc, 'EdgeColor', 'none')
-hpc.FaceColor = 'interp';
+% hpc.FaceColor = 'interp';
 xlabel('x (m)')
 ylabel('y (m)')
 title('Localization RMSE Performance')

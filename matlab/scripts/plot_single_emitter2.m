@@ -5,17 +5,19 @@ show_plots = 1;         % show plots for debugging
 show_circles = 1;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 1;    % plot hyperbolas to visualize intersection point
 % targetPos = [0; -5];    % target position (meters)
-targetPos = [100000; 100000];
+targetPos = [10; -10];
 % refPos = [-5 5 0 ; ...  % reference receiver positions [x; y] (meters)
 %           -5 -5 5 ]; 
 % refPos = [-50 50 0; ... % triangle
 %           -50 -50 50];
 % refPos = [50 -50 -50 50 ; ... % square
 %           -50 -50 50 50];
-a = 5;
-refPos = -[a/2; a/(3*sqrt(2))] + ... % centered triangle
-    [ 0  a    a/2; ... 
-      0  0      a/sqrt(2)];
+a = 5;     % length of one side of desired equilateral triangle
+b = sqrt(3)*a/2;
+refPos = [ 0  a          a/2; ...   % equilateral triangle
+           0  0      sqrt(3)*a/2];
+center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];       
+refPos = -center + refPos; % origin centered equilateral triangle
 refPos = [[0;0] refPos];
 % refPos = [0  -40  40 -70 70; ... % 5-pnt star
 %           0 -40 -40  40 40];
@@ -23,7 +25,7 @@ refPos = [[0;0] refPos];
 %            0 -40 -40  40 40 -100 100];
 % refPos = refPos - refPos(:,1);
 % targetPos = [60; 60] - refPos(:,1);
-bounds = [-30 30 -30 30];
+bounds = [-20 20 -20 20];
 % bounds = [-150 150 -150 150];
 
 % Emitter pulse properties
@@ -33,12 +35,12 @@ span = 10;              % total length of shaping filter in symbols
 sps = 4;                % samples per symbol at the receiver sample rate
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 Nsym = 40;              % number of symbols in signals
-fsym = 5e6;             % symbol rate of transmitter (signal bandwidth)
+fsym = 100e6;             % symbol rate of transmitter (signal bandwidth)
 
 % Receiver properties
-fs = 20e6;                % receiver sample rates (Hz)
+fs = 200e6;                % receiver sample rates (Hz)
 wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples
-nstds = 7;                % number of standard deviations to declare peak
+nstds = 9;                % number of standard deviations to declare peak
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
