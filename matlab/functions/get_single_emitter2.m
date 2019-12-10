@@ -7,7 +7,7 @@ function [coords, bias_coords, covar_coords, mse_coords, tdoas, ...
 numpairs = numrefs - 1;         % unique pairs of receivers
 
 % Generate the signal emitted by the target
-[x, noise_bw] = generate_signal2(Nsym, fsym, sps, span, beta, show_plots); 
+[x, noise_bw] = generate_signal2(Nsym, fsym, sps, span, beta, show_plots);
 
 %%%%%%% NEED TO RETHINK THE SAMPLE RATE CHANGE HERE. IF SAMPLE RATE IS SET
 %%%%%%% LOWER THAN SYMBOL RATE A RESAMPLE NEEDS TO HAPPEN. CURRENTLY THE
