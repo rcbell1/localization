@@ -43,6 +43,7 @@ else
     ii = 2;
     coords = w + r1p1(ii)*g;       % pick at random  
 end
+
 % else
 %     % two solutions, pick one inside convex hull if it exists, otherwise
 %     % use the first one (or could pick at random, same thing)

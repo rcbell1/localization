@@ -1,10 +1,13 @@
-function [tdoas, corr_mag_sq, peak_idxs, lags] = ...
-    get_tdoa(x, wlen, nstds, fs, show_plots)
+function [tdoas, corr_mag_sq, peak_idxs, lags, num_samps_from_peak] = ...
+    get_tdoa(x, wlen, nstds, fs, percent_of_peak, show_plots)
 
-numrefs = size(x,2);
+[nsamps, numrefs] = size(x);
 Ts = 1/fs;
 
 % Cross correlate all receivers against the first
+corr_out = zeros(2*nsamps-1, numrefs-1);
+xmeans = mean(x);
+x = x - xmeans;
 for ii = 2:numrefs
     [corr_out(:,ii-1), lags(:,ii-1)] = xcorr(x(:,ii), x(:,1));
 end
@@ -13,14 +16,19 @@ end
 corr_mag_sq = abs(corr_out).^2;
 
 % Find the peaks within the window of length wlen
-peak_idxs = peak_detect(corr_mag_sq, wlen, nstds, show_plots);
+[peak_idxs, num_samps_from_peak] = ...
+    peak_detect(corr_mag_sq, wlen, nstds, percent_of_peak, show_plots);
 
-tdoas = lags(peak_idxs)*Ts;
-lags = lags(peak_idxs);
-
-% plot(corr_out)
-% legend('12','13')
-
-
+if sum(isnan(peak_idxs)) > 0 
+    nanidx = isnan(peak_idxs);
+    goodidx = ~isnan(peak_idxs);
+%     fprintf(1,'\n\nNot enough peaks detected\n\n')
+    tdoas(nanidx) = NaN;
+    tdoas(goodidx) = lags(goodidx)*Ts;
+    lags(nanidx) = NaN;
+    lags(goodidx) = lags(goodidx);
+else
+    tdoas = lags(peak_idxs)*Ts;
+    lags = lags(peak_idxs);
 end
 
