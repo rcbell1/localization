@@ -12,7 +12,7 @@ targetPos = [0;0];      % known position
 %           -50 -50 50];
 
 % Equilateral Triangle
-a = 5;     % length of one side of desired equilateral triangle
+a = 3.9624;     % length of one side of desired equilateral triangle
 b = sqrt(3)*a/2;
 refPos = [ 0  a          a/2; ...   % equilateral triangle
            0  0      sqrt(3)*a/2];
@@ -31,8 +31,8 @@ percent_of_peak = 0.8;    % get the number of samples needed on either side
 c = 299792458;          % speed of light m/s
 
 %% Estimate the location
-[coords, tdoas] = get_single_emitter_fromfile(file_path, targetPos, ...
-    refPos, wlen, nstds, percent_of_peak, show_plots);
+[coords, tdoas] = get_single_emitter_fromfile(file_path, refPos, wlen, ...
+    nstds, percent_of_peak, show_plots);
 
 %% Plots
 % Plot localization results
