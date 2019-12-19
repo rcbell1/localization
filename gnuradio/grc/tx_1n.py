@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Tx 1N
-# Generated: Fri Nov 22 19:01:20 2019
+# Generated: Sat Dec  7 14:51:04 2019
 ##################################################
 
 from gnuradio import blocks
@@ -29,10 +29,10 @@ class tx_1n(gr.top_block):
         self.tx_gain = tx_gain = 30
         self.sps = sps = 4
         self.span = span = 20
-        self.samp_rate = samp_rate = 2e6
-        self.prnLen = prnLen = 1000
+        self.samp_rate = samp_rate = 200e6/200
+        self.prnLen = prnLen = 3000
         self.nzeros = nzeros = 10000
-        self.center_freq = center_freq = 2.5e9
+        self.center_freq = center_freq = 2.395e9
 
         ##################################################
         # Blocks
@@ -49,7 +49,7 @@ class tx_1n(gr.top_block):
         self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
         self.root_raised_cosine_filter_0 = filter.interp_fir_filter_ccf(sps, firdes.root_raised_cosine(
-        	0.8, sps, 1, 0.35, sps*span))
+        	1, sps, 1, 0.35, sps*span))
         self.blocks_vector_source_x_0 = blocks.vector_source_c(list(np.zeros(int(nzeros/2)))+list(2*np.random.randint(0,2,size=prnLen)-1)+list(np.zeros(int(nzeros/2))), True, 1, [])
 
 
@@ -73,14 +73,14 @@ class tx_1n(gr.top_block):
 
     def set_sps(self, sps):
         self.sps = sps
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(0.8, self.sps, 1, 0.35, self.sps*self.span))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, 0.35, self.sps*self.span))
 
     def get_span(self):
         return self.span
 
     def set_span(self, span):
         self.span = span
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(0.8, self.sps, 1, 0.35, self.sps*self.span))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, 0.35, self.sps*self.span))
 
     def get_samp_rate(self):
         return self.samp_rate

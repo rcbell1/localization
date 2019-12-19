@@ -113,7 +113,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.5e9</value>
+      <value>2.395e9</value>
     </param>
   </block>
   <block>
@@ -221,7 +221,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx2.dat</value>
+      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx1.dat</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -272,7 +272,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx1.dat</value>
+      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx2.dat</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -323,7 +323,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx3.dat</value>
+      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx3.dat</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1855,7 +1855,7 @@
     </param>
     <param>
       <key>dev_addr</key>
-      <value>"addr0=192.168.10.2,addr1=192.168.10.4,addr2=192.168.10.5"</value>
+      <value>"addr0=192.168.10.2,addr1=192.168.10.4,addr2=192.168.10.7"</value>
     </param>
     <param>
       <key>dev_args</key>

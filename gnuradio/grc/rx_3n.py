@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 3N
-# Generated: Fri Nov 22 19:01:27 2019
+# Generated: Sat Dec  7 15:33:06 2019
 ##################################################
 
 from gnuradio import blocks
@@ -28,13 +28,13 @@ class rx_3n(gr.top_block):
         self.samp_rate = samp_rate = 200e6/22
         self.rx_gain = rx_gain = 30
         self.nitems_stop = nitems_stop = int(1e6)
-        self.center_freq = center_freq = 2.5e9
+        self.center_freq = center_freq = 2.395e9
 
         ##################################################
         # Blocks
         ##################################################
         self.uhd_usrp_source_0 = uhd.usrp_source(
-        	",".join(("addr0=192.168.10.2,addr1=192.168.10.4,addr2=192.168.10.5", "")),
+        	",".join(("addr0=192.168.10.2,addr1=192.168.10.4,addr2=192.168.10.7", "")),
         	uhd.stream_args(
         		cpu_format="fc32",
         		channels=range(3),
@@ -64,11 +64,11 @@ class rx_3n(gr.top_block):
         self.dc_blocker_xx_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0 = filter.dc_blocker_cc(200, True)
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, nitems_stop)
-        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx3.dat', False)
+        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx3.dat', False)
         self.blocks_file_sink_0_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx1.dat', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx2.dat', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_near_rx1/rx2.dat', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx1.dat', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
 
