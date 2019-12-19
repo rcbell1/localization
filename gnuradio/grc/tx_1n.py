@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Tx 1N
-# Generated: Sat Dec  7 14:51:04 2019
+# Generated: Wed Dec 18 17:52:10 2019
 ##################################################
 
 from gnuradio import blocks
@@ -28,10 +28,10 @@ class tx_1n(gr.top_block):
         ##################################################
         self.tx_gain = tx_gain = 30
         self.sps = sps = 4
-        self.span = span = 20
-        self.samp_rate = samp_rate = 200e6/200
-        self.prnLen = prnLen = 3000
-        self.nzeros = nzeros = 10000
+        self.span = span = 10
+        self.samp_rate = samp_rate = 200e6/70
+        self.prnLen = prnLen = 1000
+        self.nzeros = nzeros = 3000
         self.center_freq = center_freq = 2.395e9
 
         ##################################################

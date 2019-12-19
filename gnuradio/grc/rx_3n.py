@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 3N
-# Generated: Sat Dec  7 15:33:06 2019
+# Generated: Wed Dec 18 17:59:59 2019
 ##################################################
 
 from gnuradio import blocks
@@ -14,6 +14,7 @@ from gnuradio import uhd
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from optparse import OptionParser
+import numpy as np
 import time
 
 
@@ -25,9 +26,15 @@ class rx_3n(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = 200e6/22
+        self.tx_samp_rate = tx_samp_rate = 200e6/70
+        self.sps = sps = 4
+        self.samp_rate = samp_rate = 200e6/40
+        self.prnLen = prnLen = 1000
+        self.nzeros = nzeros = 3000
+        self.npulses_stop = npulses_stop = 100
+        self.span = span = 10
         self.rx_gain = rx_gain = 30
-        self.nitems_stop = nitems_stop = int(1e6)
+        self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
@@ -63,12 +70,14 @@ class rx_3n(gr.top_block):
         self.dc_blocker_xx_0_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0 = filter.dc_blocker_cc(200, True)
-        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, nitems_stop)
-        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx3.dat', False)
+        self.blocks_head_0_1 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
+        self.blocks_head_0_0 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
+        self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
+        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx3.dat', False)
         self.blocks_file_sink_0_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx2.dat', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx2.dat', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/tx_center/rx1.dat', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx1.dat', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
 
@@ -77,19 +86,63 @@ class rx_3n(gr.top_block):
         # Connections
         ##################################################
         self.connect((self.blocks_head_0, 0), (self.blocks_file_sink_0, 0))
+        self.connect((self.blocks_head_0_0, 0), (self.blocks_file_sink_0_0, 0))
+        self.connect((self.blocks_head_0_1, 0), (self.blocks_file_sink_0_0_0, 0))
         self.connect((self.dc_blocker_xx_0, 0), (self.blocks_head_0, 0))
-        self.connect((self.dc_blocker_xx_0_0, 0), (self.blocks_file_sink_0_0, 0))
-        self.connect((self.dc_blocker_xx_0_0_0, 0), (self.blocks_file_sink_0_0_0, 0))
+        self.connect((self.dc_blocker_xx_0_0, 0), (self.blocks_head_0_0, 0))
+        self.connect((self.dc_blocker_xx_0_0_0, 0), (self.blocks_head_0_1, 0))
         self.connect((self.uhd_usrp_source_0, 0), (self.dc_blocker_xx_0, 0))
         self.connect((self.uhd_usrp_source_0, 1), (self.dc_blocker_xx_0_0, 0))
         self.connect((self.uhd_usrp_source_0, 2), (self.dc_blocker_xx_0_0_0, 0))
+
+    def get_tx_samp_rate(self):
+        return self.tx_samp_rate
+
+    def set_tx_samp_rate(self, tx_samp_rate):
+        self.tx_samp_rate = tx_samp_rate
+        self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
+
+    def get_sps(self):
+        return self.sps
+
+    def set_sps(self, sps):
+        self.sps = sps
+        self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
 
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
+
+    def get_prnLen(self):
+        return self.prnLen
+
+    def set_prnLen(self, prnLen):
+        self.prnLen = prnLen
+        self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
+
+    def get_nzeros(self):
+        return self.nzeros
+
+    def set_nzeros(self, nzeros):
+        self.nzeros = nzeros
+        self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
+
+    def get_npulses_stop(self):
+        return self.npulses_stop
+
+    def set_npulses_stop(self, npulses_stop):
+        self.npulses_stop = npulses_stop
+        self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
+
+    def get_span(self):
+        return self.span
+
+    def set_span(self, span):
+        self.span = span
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -108,7 +161,9 @@ class rx_3n(gr.top_block):
 
     def set_nitems_stop(self, nitems_stop):
         self.nitems_stop = nitems_stop
-        self.blocks_head_0.set_length(self.nitems_stop)
+        self.blocks_head_0_1.set_length(int(self.nitems_stop))
+        self.blocks_head_0_0.set_length(int(self.nitems_stop))
+        self.blocks_head_0.set_length(int(self.nitems_stop))
 
     def get_center_freq(self):
         return self.center_freq
