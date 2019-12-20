@@ -1,0 +1,9 @@
+USRP Gain : True Power Out
+30 : 20.4
+20 : 13.4
+10 : 3.3
+
+50 ft cable 7.3 dB loss
+
+input power: -30 dBm
+magnitude of time series: 0.435 at rx gain 30, freq 2.395e9
