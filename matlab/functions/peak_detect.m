@@ -48,7 +48,6 @@ if show_plots == 1
     figure
     plot(norm_corr_mag_sq,'.-'); hold all
     xmin = inf;
-% xmax = 0;
     for ii = 1:npairs
         plot([1 length(corr_mag_sq)], [nstds*xstd(ii) nstds*xstd(ii)], '--');
         if ~isnan(peak_idxs(ii))
@@ -56,9 +55,6 @@ if show_plots == 1
             if xmin > min(norm_corr_mag_sq(peak_idxs(ii)-1,ii),norm_corr_mag_sq(peak_idxs(ii)+1,ii))
                 xmin = min(norm_corr_mag_sq(peak_idxs(ii)-1,ii),norm_corr_mag_sq(peak_idxs(ii)+1,ii));
             end
-%             if xmax < corr_mag_sq(peak_idxs(ii),ii)
-%                 xmax = corr_mag_sq(peak_idxs(ii),ii);
-%             end
         else
             xmin = 0;
         end

@@ -1,21 +1,15 @@
-function [coords, bias_coords, covar_coords, mse_coords, tdoas_true, ...
-    tdoas_coarse, tdoas_refined, prob_correlation, prob_detection, ...
-    unique] = get_single_emitter2(targetPos, refPos, Ntrials, ...
-    tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, nstds, ...
-    percent_of_peak, show_plots)
+function [coords, bias_coords, covar_coords, mse_coords, tdoas_coarse, ...
+    tdoas_refined, prob_correlation, prob_detection, Ntrials, unique] = ...
+    get_multiple_single_emitters_fromfile(file_path, targetPos, refPos, ...
+    wlen, nstds, percent_of_peak, show_plots)
 
 [numdims, numrefs] = size(refPos);
 numpairs = numrefs - 1;         % unique pairs of receivers
 
 % Generate the signal emitted by the target
-[x, noise_bw] = generate_signal2(Nsym, fsym, sps, span, beta, show_plots);
-
-[P,Q] = rat(fs/(fsym*sps));
-y1 = resample(x, P, Q);
-
-% Add proper delays that correspond to target and emitter locations
-[y2, tdoas_true, ranges] = add_delay2(y1, targetPos, refPos, ...
-    fs, show_plots);
+[yblock, fs, bounds] = load_signals_fromfile(file_path, show_plots);
+Npulses = length(bounds)-1;
+Ntrials = Npulses;
 
 avg_coords = [0;0];
 MSE_coords = [0 0;0 0];
@@ -28,12 +22,12 @@ tdoas_coarse = nan(Ntrials, numpairs);
 tdoas_refined = nan(Ntrials, numpairs);
 for nn = 1:Ntrials
     
-    % Add noise at the proper SNR levels for free space path losses
-    y3 = add_noise(y2, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
-
+    % each row contains one recorded pulse
+    y = yblock(bounds(nn):bounds(nn+1)-1,:);
+    
     % Estimate the delay using the received signals
     [tdoas_coarse(nn,:), corr_mag_sq, peak_idxs, lags, num_samps_from_peak] = ...
-        get_tdoa(y3, wlen, nstds, fs, percent_of_peak, show_plots);
+        get_tdoa(y, wlen, nstds, fs, percent_of_peak, show_plots);
 
     if sum(isnan(peak_idxs)) ~= numpairs
         detection_count = detection_count + 1;
@@ -60,13 +54,13 @@ for nn = 1:Ntrials
 
         % Feed the refined TDOAs to a localization algorithm
         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
-%         [coords, unique] = geo_sphere_int(refPos, tdoas_refined);
+%         [coords(:,nn), unique] = geo_sphere_int(refPos, tdoas_refined);
 
         % Compute statistical performance metrics
         avg_coords = avg_coords + coords(:,nn); 
         MSE_coords = MSE_coords + (targetPos - coords(:,nn))*(targetPos-coords(:,nn))';
         unique_avg = unique_avg + unique;
-
+        
     else
         Ntrials_with_peak = Ntrials_with_peak - 1;
         tdoas_refined(nn,:) = nan*ones(1,numpairs);

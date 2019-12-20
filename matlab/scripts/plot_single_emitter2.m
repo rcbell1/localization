@@ -86,7 +86,7 @@ legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Locati
 
 % Plot time contours
 tbounds = 2*bounds;
-steps = round(.1*tbounds);
+steps = round(.1*max(tbounds));
 [tx,ty] = meshgrid(tbounds(1):steps:tbounds(2),tbounds(3):steps:tbounds(4));
 tx2 = tx - targetPos(1);
 ty2 = ty - targetPos(2);

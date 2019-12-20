@@ -2,16 +2,17 @@ clear; close all
 addpath('../functions')
 
 plot_toa_countours = 0;
-% plot_hull = 1;          % plot convex hull or ref stations
-% emitter_bounds = [-100 100 -100 100];   % bounds of emitter locations
-% plot_bounds = [-250 250 -250 250];  % outer boundary of plot figure
-
-% Generate target emitter positions [x; y] (meters)
-% numEmitters = 100;       % total number of random emitter locations to create
-% targetPos = [randi([emitter_bounds(1) emitter_bounds(2)],1,numEmitters); ...    
-%     randi([emitter_bounds(3) emitter_bounds(4)],1,numEmitters)]; 
-% [Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
-%     emitter_bounds(3):emitter_spacing:emitter_bounds(4));
+show_plots = 0;         % show plots for debugging
+show_circles = 0;       % plot circles centered on emitter to visualize tdoa
+show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
+file_paths = {'../../data/2/tx_center/rx_samp_rate_9Msps/rx_pulses_sliced.mat';
+    '../../data/2/tx_base_center/rx_samp_rate_9Msps/rx_pulses_sliced.mat';
+    '../../data/2/tx_side_chair/rx_samp_rate_9Msps/rx_pulses_sliced.mat';
+    '../../data/2/tx_side_opp_chair/rx_samp_rate_9Msps/rx_pulses_sliced.mat'};
+bounds = [-4 4 -4 4;
+          -4 4 -4 4;
+          -4 4 -4 4
+          -50 50 -50 50];
 
 % Equilateral Triangle
 a = 3.9624;     % length of one side of desired equilateral triangle
@@ -33,59 +34,38 @@ bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPo
 bounds = bcenter + [-3 3 -3 3;
                   -3 3 -3 3;
                   -3 3 -3 3
-                  -3 3 -3 3];
-              
-%% Emitter pulse properties
-tx_pwr_dbm = -28;         % emitter transmit power in dBm (USRP max is 10 dBm)
-fs_tx = 200e6/70;
-Nsym = 1000;              % number of symbols in signals
-span = 10;              % total length of shaping filter in symbols
-sps = 4;                % samples per symbol at the transmitter
-fsym = fs_tx/sps;             % symbol rate of transmitter (signal bandwidth)
-beta = 0.4;             % excess bandwidth of tx pulse shaping filter
-fc = 2.395e9;             % center frequency of transmitter
-
-%% Receiver properties
-fs = 200e6/22;                % receiver sample rates (Hz)
-wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples, odd number
+                  -50 50 -50 50];
+      
+% Receiver properties
+wlen = 20;                % moving maximum window length in samples
 nstds = 9;                % number of standard deviations to declare peak
-percent_of_peak = 0.8;    % get the number of samples needed on either side 
+percent_of_peak = 0.9;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
 
-% tx_pwr_dbm = -10;       % emitter transmit power in dBm
-% fc = 915e6;             % center frequency of transmitter
-% fs = 20e6;              % receiver sample rates (Hz)
-% Nsym = 40;              % number of symbols in signals
-% 
-% span = 20;              % total length of shaping filter in symbols
-% sps = 5;                % samples per symbol at the receiver sample rate
-% fhigh = 2500*fs;           % high speed sample rate where delays are added (Hz)
-% wlen = 2*sps+1;           % moving maximum window length in samples
-% nstds = 6;              % number of standard deviations to declare peak
-
 % General simulation properties
 c = 299792458;          % speed of light m/s
-Ntrials = 100;            % keep at 1 for this plot, only for heat maps
 
-tic
-jj = 1; % for future use
-for ii = 1:size(targetPos,2)
+%% Estimate the location
+jj = 1; % for future work
+numfiles = size(file_paths,1);
+for ii = 1:numfiles
+    toas_true(ii,:) = vecnorm(refPos - targetPos(:,ii))/c*1e9;
+    tdoas_true = toas_true(:,2:end) - toas_true(:,1:end-1)
+    
     [coords{ii,jj}, bias_coords{ii,jj}, covar_coords{ii,jj}, ...
-        mse_coords(ii,jj), tdoas_true(ii,:), tdoas_coarse{ii,jj}, tdoas_refined{ii,jj}, ...
-        prob_correlation(ii,jj), prob_detection(ii,jj), ...
-        unique(ii,jj)] = get_single_emitter2(targetPos(:,ii), refPos, ...
-        Ntrials, tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, ...
-        nstds, percent_of_peak, 0);
+        mse_coords(ii,jj), tdoas_coarse{ii,jj}, tdoas_refined{ii,jj}, ...
+        prob_correlation(ii,jj), prob_detection(ii,jj), Ntrials(ii,jj), ...
+        unique(ii,jj)] = get_multiple_single_emitters_fromfile(...
+        file_paths{ii}, targetPos, refPos, wlen, nstds, ...
+        percent_of_peak, show_plots);
 end
-toc
 
 %% Plots
 % Plot localization results
 figure
-numtargets = size(targetPos,2);
-for kk = 1:numtargets
-    subplot(1,numtargets,kk)
+for kk = 1:numfiles
+    subplot(1,numfiles,kk)
     numrefs = size(refPos,2);
     for ii = 1:numrefs
         plot(refPos(1,ii), refPos(2,ii), 'ks', 'MarkerFaceColor', 'k', ...
@@ -115,10 +95,9 @@ for kk = 1:numtargets
      sprintf('b_x: %3.2f (m)\nb_y: %3.2f (m)\n\\sigma_x: %3.2e (m)\n\\sigma_y: %3.2e (m)', ...
      bias_coords{kk}(1), bias_coords{kk}(2), sqrt(covar_coords{kk}(1,1)), ...
      sqrt(covar_coords{kk}(2,2))), 'fontsize', 8)
-%     title('Localization Results')
     
-    % Plot time contours
-    if plot_toa_countours == 1
+     if plot_toa_countours == 1
+        % Plot time contours
         tbounds = 2*bounds(kk,:);
         steps = .006*max(tbounds);
         [tx,ty] = meshgrid(tbounds(1):steps:tbounds(2),tbounds(3):steps:tbounds(4));
@@ -126,12 +105,12 @@ for kk = 1:numtargets
         ty2 = ty - targetPos(2,kk);
         tz = sqrt(tx2.^2+ty2.^2)/c*1e9;
         contour(tx,ty,tz, 4:15, '--', 'showtext', 'on', 'HandleVisibility', 'off')
-    end
+     end
 end
 legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Location', 'Position', [0.5 0.9 0.1 0.1])
 
 %% Create table of TDOAs
-for kk = 1:numtargets
+for kk = 1:numfiles
     figure
     Coarse = tdoas_coarse{kk,1}*1e9;
     Fine = tdoas_refined{kk,1}*1e9;
@@ -147,30 +126,38 @@ for kk = 1:numtargets
 end
 
 
-% figure
-% numrefs = size(refPos,2);
+% Plot with hyperbolas
+% subplot(1,2,2)
 % for ii = 1:numrefs
-%     plot(refPos(1,ii), refPos(2,ii), 'r*','HandleVisibility','off', 'MarkerSize',8); 
+%     plot(refPos(1,ii), refPos(2,ii), 'rx','HandleVisibility','off', 'MarkerSize',14); 
 %     hold all
 %     text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), 'horizontalalignment', 'center', 'verticalalignment', 'bottom')
 % end
-% plot(refPos(1,1), refPos(2,1), 'r*')
-% 
+% plot(refPos(1,1), refPos(2,1), 'rx')
+% plot(targetPos(1),targetPos(2), 'bo', 'MarkerSize',8);
 % for ii = 1:size(coords,2)
-%     plot(targetPos(1,ii),targetPos(2,ii), 'bo', 'MarkerSize',8, 'HandleVisibility','off');
 %     plot(coords(1,ii),coords(2,ii), 'b.', 'MarkerSize',12, 'HandleVisibility','off');
 % end
-% plot(targetPos(1,1),targetPos(2,1), 'bo')
 % plot(coords(1,1),coords(2,1), 'b.', 'MarkerSize',12)
 % axis equal
-% axis(plot_bounds)
+% axis(bounds)
 % xlabel('x (m)')
 % ylabel('y (m)')
 % title('Localization Results')
-% legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Location', 'location', 'best')
+% legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Location', 'Position', [0.69 0.06 0.1 0.1])
 % grid on
 % 
-% if plot_hull == 1
-%     k = convhull(refPos(1,:),refPos(2,:));
+% if show_circles == 1
+%     viscircles(repmat(targetPos, 1, numrefs)',vecnorm(targetPos-refPos,2,1),...
+%     'color', 'b', 'linestyle', '--', 'linewidth', 0.5);
 % end
-% plot(refPos(1,k),refPos(2,k),'r', 'HandleVisibility','off')
+% 
+% if show_hyperbolas == 1
+%     plot_multiple_hyperbolas(refPos, targetPos, tdoas*c, bounds)
+% end
+
+
+
+
+
+
