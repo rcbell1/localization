@@ -5,14 +5,16 @@ plot_toa_countours = 0;
 show_plots = 0;         % show plots for debugging
 show_circles = 0;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
-file_paths = {'../../data/2/tx_center/rx_samp_rate_9Msps/rx_pulses_sliced.mat';
-    '../../data/2/tx_base_center/rx_samp_rate_9Msps/rx_pulses_sliced.mat';
-    '../../data/2/tx_side_chair/rx_samp_rate_9Msps/rx_pulses_sliced.mat';
-    '../../data/2/tx_side_opp_chair/rx_samp_rate_9Msps/rx_pulses_sliced.mat'};
-bounds = [-4 4 -4 4;
-          -4 4 -4 4;
-          -4 4 -4 4
-          -50 50 -50 50];
+file_paths = {'../../data/3/tx_center/rx1/rx_pulses_sliced.mat';
+    '../../data/3/tx_base/rx1/rx_pulses_sliced.mat';
+    '../../data/3/tx_side/rx1/rx_pulses_sliced.mat';
+    '../../data/3/tx_opp_side/rx1/rx_pulses_sliced.mat'};
+% bounds = [-4 4 -4 4;
+%           -4 4 -4 4;
+%           -4 4 -4 4
+%           -50 50 -50 50];
+      
+% file_paths = {'../../data/3/wired_center/rx9/rx_pulses_sliced.mat'};
 
 % Equilateral Triangle
 a = 3.9624;     % length of one side of desired equilateral triangle
@@ -31,10 +33,11 @@ targetPos1 = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];     % center
 targetPos = [targetPos1 targetPos2 targetPos3 targetPos4];
 
 bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPos(2,:))/3].';
-bounds = bcenter + [-3 3 -3 3;
+bounds = bcenter + [-50 50 -50 50;
                   -3 3 -3 3;
-                  -3 3 -3 3
-                  -50 50 -50 50];
+                  -50 50 -50 50
+                  -3 3 -3 3];
+% bounds = bcenter + [-3 3 -3 3];
       
 % Receiver properties
 wlen = 20;                % moving maximum window length in samples
