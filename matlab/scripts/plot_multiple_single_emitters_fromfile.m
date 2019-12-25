@@ -2,9 +2,10 @@ clear; close all
 addpath('../functions')
 
 plot_toa_countours = 0;
-show_plots = 1;         % show plots for debugging
+show_plots = 0;         % show plots for debugging
 show_circles = 0;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
+
 file_paths = {'../../data/3/tx_center/rx9/rx_pulses_sliced.mat';
     '../../data/3/tx_base/rx9/rx_pulses_sliced.mat';
     '../../data/3/tx_side/rx9/rx_pulses_sliced.mat';
@@ -17,7 +18,7 @@ ylabels = {'1,2', '1,3'};
 %           -4 4 -4 4;
 %           -4 4 -4 4;
 %           -50 50 -50 50];
-file_paths = {'../../data/3/tx_side/rx9/rx_pulses_sliced.mat'};
+% file_paths = {'../../data/3/tx_side/rx9/rx_pulses_sliced.mat'};
 % bounds = [-50 50 -50 50];
 
 % Equilateral Triangle
@@ -37,7 +38,7 @@ targetPos1 = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];     % center
 targetPos = [targetPos1 targetPos2 targetPos4 targetPos3 targetPos1];
 
 bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPos(2,:))/3].';
-bounds = bcenter + [-3 3 -3 3;
+bounds = bcenter + [-50 50 -50 50;
                   -3 3 -3 3;
                   -3 3 -3 3;
                   -3 3 -3 3;
