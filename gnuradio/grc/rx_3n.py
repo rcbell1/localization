@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Rx 3N
-# Generated: Wed Dec 18 17:59:59 2019
+# GNU Radio version: 3.7.13.5
 ##################################################
 
 from gnuradio import blocks
@@ -28,13 +28,17 @@ class rx_3n(gr.top_block):
         ##################################################
         self.tx_samp_rate = tx_samp_rate = 200e6/70
         self.sps = sps = 4
-        self.samp_rate = samp_rate = 200e6/40
+        self.samp_rate = samp_rate = 200e6/22
         self.prnLen = prnLen = 1000
         self.nzeros = nzeros = 3000
         self.npulses_stop = npulses_stop = 100
+        self.tx_loc_str = tx_loc_str = 'tx_center'
+        self.test_num_str = test_num_str = '6'
         self.span = span = 10
-        self.rx_gain = rx_gain = 30
+        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs9'
+        self.rx_gain = rx_gain = 20
         self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
+        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/6 - long wired tests/'
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
@@ -61,23 +65,29 @@ class rx_3n(gr.top_block):
         self.uhd_usrp_source_0.set_center_freq(center_freq, 0)
         self.uhd_usrp_source_0.set_gain(rx_gain, 0)
         self.uhd_usrp_source_0.set_antenna('RX2', 0)
+        self.uhd_usrp_source_0.set_auto_dc_offset(False, 0)
+        self.uhd_usrp_source_0.set_auto_iq_balance(False, 0)
         self.uhd_usrp_source_0.set_center_freq(center_freq, 1)
         self.uhd_usrp_source_0.set_gain(rx_gain, 1)
         self.uhd_usrp_source_0.set_antenna('TX/RX', 1)
+        self.uhd_usrp_source_0.set_auto_dc_offset(False, 1)
+        self.uhd_usrp_source_0.set_auto_iq_balance(False, 1)
         self.uhd_usrp_source_0.set_center_freq(center_freq, 2)
         self.uhd_usrp_source_0.set_gain(rx_gain, 2)
         self.uhd_usrp_source_0.set_antenna('RX2', 2)
+        self.uhd_usrp_source_0.set_auto_dc_offset(False, 2)
+        self.uhd_usrp_source_0.set_auto_iq_balance(False, 2)
         self.dc_blocker_xx_0_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0_0 = filter.dc_blocker_cc(200, True)
         self.dc_blocker_xx_0 = filter.dc_blocker_cc(200, True)
         self.blocks_head_0_1 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
         self.blocks_head_0_0 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
-        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx3.dat', False)
+        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx3.dat', False)
         self.blocks_file_sink_0_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx2.dat', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx2.dat', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx1.dat', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx1.dat', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
 
@@ -138,11 +148,38 @@ class rx_3n(gr.top_block):
         self.npulses_stop = npulses_stop
         self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
 
+    def get_tx_loc_str(self):
+        return self.tx_loc_str
+
+    def set_tx_loc_str(self, tx_loc_str):
+        self.tx_loc_str = tx_loc_str
+        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
+        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
+        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
+
+    def get_test_num_str(self):
+        return self.test_num_str
+
+    def set_test_num_str(self, test_num_str):
+        self.test_num_str = test_num_str
+        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
+        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
+        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
+
     def get_span(self):
         return self.span
 
     def set_span(self, span):
         self.span = span
+
+    def get_rx_samp_rate_str(self):
+        return self.rx_samp_rate_str
+
+    def set_rx_samp_rate_str(self, rx_samp_rate_str):
+        self.rx_samp_rate_str = rx_samp_rate_str
+        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
+        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
+        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -165,6 +202,15 @@ class rx_3n(gr.top_block):
         self.blocks_head_0_0.set_length(int(self.nitems_stop))
         self.blocks_head_0.set_length(int(self.nitems_stop))
 
+    def get_data_path_str(self):
+        return self.data_path_str
+
+    def set_data_path_str(self, data_path_str):
+        self.data_path_str = data_path_str
+        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
+        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
+        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
+
     def get_center_freq(self):
         return self.center_freq
 
@@ -179,11 +225,6 @@ def main(top_block_cls=rx_3n, options=None):
 
     tb = top_block_cls()
     tb.start()
-    try:
-        raw_input('Press Enter to quit: ')
-    except EOFError:
-        pass
-    tb.stop()
     tb.wait()
 
 

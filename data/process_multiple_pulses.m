@@ -1,12 +1,14 @@
 clear; close all
 
-path = '3/wired_center/rx9/';
-% path = '3/tx_center/rx5/';
-path = '3/tx_base/rx1/';
-path = '3/tx_side/rx1/';
-path = '3/tx_opp_side/rx1/';
+% path = '3/wired_center/rx9/';
+% path = '3 - outdoors - 12_20_2019/tx_base/rx9/';
+% path = '3/tx_base/rx1/';
+% path = '3/tx_side/rx1/';
+% path = '3/tx_opp_side/rx1/';
+% path = '5 - wireless tests desk/tx_center/rfs9/6/';
+path = '6 - long wired tests/tx_center/rfs9/6/';
 nsamp_shift = 000; % symbols to shift in same ref frame as zeroes above
-fs_rx = 200e6/200;   % sample rate of receiver (denoms 22,40,200)
+fs_rx = 200e6/22;   % sample rate of receiver (denoms 22,40,200)
 
 fs_tx = 200e6/70;        % sample rate of transmitter
 sps = 4;            % samples per symbol at transmitter

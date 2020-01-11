@@ -66,7 +66,7 @@
     </param>
     <param>
       <key>run_options</key>
-      <value>prompt</value>
+      <value>run</value>
     </param>
     <param>
       <key>run</key>
@@ -101,7 +101,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(280, 12)</value>
+      <value>(312, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -114,6 +114,33 @@
     <param>
       <key>value</key>
       <value>2.395e9</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(992, 196)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>data_path_str</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>'/home/rbell/Documents/repos/localization/data/6 - long wired tests/'</value>
     </param>
   </block>
   <block>
@@ -236,7 +263,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(376, 12)</value>
+      <value>(408, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -248,7 +275,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>30</value>
+      <value>20</value>
     </param>
   </block>
   <block>
@@ -263,7 +290,34 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(184, 12)</value>
+      <value>(992, 324)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>rx_samp_rate_str</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>'rfs9'</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(200, 12)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -275,7 +329,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>200e6/40</value>
+      <value>200e6/22</value>
     </param>
   </block>
   <block>
@@ -344,7 +398,61 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 20)</value>
+      <value>(992, 388)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>test_num_str</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>'6'</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(992, 260)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>tx_loc_str</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>'tx_center'</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(744, 20)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -383,7 +491,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx1.dat</value>
+      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx1.dat'</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -434,7 +542,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx2.dat</value>
+      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx2.dat'</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -485,7 +593,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>/home/wcsng-21/Documents/richbell/tdoa-localization/data/2/tx_center/rx_samp_rate_5Msps/rx3.dat</value>
+      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx3.dat'</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -963,7 +1071,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(668, 28)</value>
+      <value>(664, 28)</value>
     </param>
     <param>
       <key>_rotation</key>
