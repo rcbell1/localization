@@ -140,7 +140,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>'/home/rbell/Documents/repos/localization/data/6 - long wired tests/'</value>
+      <value>'/home/rbell/Documents/repos/localization/data/7 - long wires readjusted/'</value>
     </param>
   </block>
   <block>
@@ -410,7 +410,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>'6'</value>
+      <value>'2'</value>
     </param>
   </block>
   <block>
@@ -2258,7 +2258,7 @@
     </param>
     <param>
       <key>dev_addr</key>
-      <value>"addr0=192.168.10.2,addr1=192.168.10.4,addr2=192.168.10.7"</value>
+      <value>"addr0=192.168.10.2,addr1=192.168.11.2,addr2=192.168.12.2"</value>
     </param>
     <param>
       <key>dev_args</key>

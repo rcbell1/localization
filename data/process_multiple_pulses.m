@@ -6,7 +6,7 @@ clear; close all
 % path = '3/tx_side/rx1/';
 % path = '3/tx_opp_side/rx1/';
 % path = '5 - wireless tests desk/tx_center/rfs9/6/';
-path = '6 - long wired tests/tx_center/rfs9/6/';
+path = '7 - long wires readjusted/tx_center/rfs9/1/';
 nsamp_shift = 000; % symbols to shift in same ref frame as zeroes above
 fs_rx = 200e6/22;   % sample rate of receiver (denoms 22,40,200)
 
@@ -36,7 +36,10 @@ x1 = x1raw;
 x2 = x2raw;
 x3 = x3raw;
 
-bounds = floor(1+nsamp_shift:Nprx:npulses*Nprx+nsamp_shift+1); % boundaries betweeen pulses
+% ignore the first pulse because it sometimes contains transients from
+% radio startup that can effect performance
+npulses = npulses - 1; % number after dropping the first
+bounds = floor(Nprx+nsamp_shift:Nprx:npulses*Nprx+nsamp_shift+1); % boundaries betweeen pulses
 
 % this is dealing with the end of sequence conditions by padding or
 % contracting as needed.
@@ -57,9 +60,9 @@ save([path 'rx_pulses_sliced.mat'],'yblock','fs_rx',...
     'fs_tx','sps','nsympulse', 'Nprx', 'bounds')
 
 % Plots
-y1last = y1(npulses,:); % use the last pulse
-y2last = y2(npulses,:);
-y3last = y3(npulses,:);
+y1last = y1(end,:); % use the last pulse
+y2last = y2(end,:);
+y3last = y3(end,:);
 
 figure
 subplot(4,3,1)

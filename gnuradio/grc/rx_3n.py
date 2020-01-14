@@ -33,19 +33,19 @@ class rx_3n(gr.top_block):
         self.nzeros = nzeros = 3000
         self.npulses_stop = npulses_stop = 100
         self.tx_loc_str = tx_loc_str = 'tx_center'
-        self.test_num_str = test_num_str = '6'
+        self.test_num_str = test_num_str = '2'
         self.span = span = 10
         self.rx_samp_rate_str = rx_samp_rate_str = 'rfs9'
         self.rx_gain = rx_gain = 20
         self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
-        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/6 - long wired tests/'
+        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/7 - long wires readjusted/'
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
         # Blocks
         ##################################################
         self.uhd_usrp_source_0 = uhd.usrp_source(
-        	",".join(("addr0=192.168.10.2,addr1=192.168.10.4,addr2=192.168.10.7", "")),
+        	",".join(("addr0=192.168.10.2,addr1=192.168.11.2,addr2=192.168.12.2", "")),
         	uhd.stream_args(
         		cpu_format="fc32",
         		channels=range(3),

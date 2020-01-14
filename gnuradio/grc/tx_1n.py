@@ -38,7 +38,7 @@ class tx_1n(gr.top_block):
         # Blocks
         ##################################################
         self.uhd_usrp_sink_0 = uhd.usrp_sink(
-        	",".join(("addr0=192.168.10.3", "")),
+        	",".join(("addr0=192.168.13.2", "")),
         	uhd.stream_args(
         		cpu_format="fc32",
         		channels=range(1),

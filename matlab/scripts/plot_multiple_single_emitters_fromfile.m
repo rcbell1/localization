@@ -12,7 +12,7 @@ show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
 %     '../../data/3/tx_opp_side/rx9/rx_pulses_sliced.mat';
 %     '../../data/3/wired_center/rx9/rx_pulses_sliced.mat'};
 % tx_names = {'Center', 'Base', 'Side', 'Opposite Side', 'Wired Center'};
-file_paths = {'../../data/6 - long wired tests/tx_center/rfs9/6/rx_pulses_sliced.mat'};
+file_paths = {'../../data/7 - long wires readjusted/tx_center/rfs9/1/rx_pulses_sliced.mat'};
 tx_names = {'Wired Center'};
 
 ylabels = {'1,2', '1,3'};
@@ -47,7 +47,7 @@ bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPo
 %                   -3 3 -3 3;
 %                   -3 3 -3 3;
 %                   -3 3 -3 3];
-bounds = bcenter + [-1 1 -1 1];
+bounds = bcenter + [-90 90 -90 90];
       
 % Receiver properties
 wlen = 20;                % moving maximum window length in samples
