@@ -28,17 +28,17 @@ class rx_3n(gr.top_block):
         ##################################################
         self.tx_samp_rate = tx_samp_rate = 200e6/70
         self.sps = sps = 4
-        self.samp_rate = samp_rate = 200e6/22
+        self.samp_rate = samp_rate = 200e6/14
         self.prnLen = prnLen = 1000
         self.nzeros = nzeros = 3000
         self.npulses_stop = npulses_stop = 100
         self.tx_loc_str = tx_loc_str = 'tx_center'
-        self.test_num_str = test_num_str = '2'
+        self.test_num_str = test_num_str = '3'
         self.span = span = 10
-        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs9'
+        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs20'
         self.rx_gain = rx_gain = 20
         self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
-        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/7 - long wires readjusted/'
+        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/10 - long wires 01_18_2020/'
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
@@ -51,6 +51,7 @@ class rx_3n(gr.top_block):
         		channels=range(3),
         	),
         )
+        self.uhd_usrp_source_0.set_clock_rate(200e6, uhd.ALL_MBOARDS)
         self.uhd_usrp_source_0.set_clock_source('external', 0)
         self.uhd_usrp_source_0.set_time_source('external', 0)
         self.uhd_usrp_source_0.set_subdev_spec('B:0', 0)

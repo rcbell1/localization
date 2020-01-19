@@ -6,9 +6,10 @@ clear; close all
 % path = '3/tx_side/rx1/';
 % path = '3/tx_opp_side/rx1/';
 % path = '5 - wireless tests desk/tx_center/rfs9/6/';
-path = '7 - long wires readjusted/tx_center/rfs9/1/';
+% path = '8 - long wires tx sync/tx_center/rfs9/1/';
+path = '10 - long wires 01_18_2020/tx_center/rfs20/3/';
 nsamp_shift = 000; % symbols to shift in same ref frame as zeroes above
-fs_rx = 200e6/22;   % sample rate of receiver (denoms 22,40,200)
+fs_rx = 200e6/14;   % sample rate of receiver (denoms 22,40,200)
 
 fs_tx = 200e6/70;        % sample rate of transmitter
 sps = 4;            % samples per symbol at transmitter
@@ -59,7 +60,10 @@ yblock = [x1 x2 x3];
 save([path 'rx_pulses_sliced.mat'],'yblock','fs_rx',...
     'fs_tx','sps','nsympulse', 'Nprx', 'bounds')
 
-% Plots
+%% Plots
+ymax = max(max(abs(yblock)));
+ymax = 1.1*ymax;
+
 y1last = y1(end,:); % use the last pulse
 y2last = y2(end,:);
 y3last = y3(end,:);
@@ -70,24 +74,27 @@ plot(real(x1)); hold all
 plot(imag(x1))
 plot([bounds; bounds], repmat([-1;1],1,length(bounds)), 'k--')
 title('Rx1 192.168.10.2')
-axis([-inf inf -0.01 0.01])
+axis([-inf inf -ymax ymax])
 subplot(4,3,2)
 plot(real(x2)); hold all
 plot(imag(x2))
 plot([bounds; bounds], repmat([-1;1],1,length(bounds)), 'k--')
 title('Rx2 192.168.10.4')
-axis([-inf inf -0.01 0.01])
+axis([-inf inf -ymax ymax])
 subplot(4,3,3)
 plot(real(x3)); hold all
 plot(imag(x3))
 plot([bounds; bounds], repmat([-1;1],1,length(bounds)), 'k--')
 title('Rx3 192.168.10.5')
-axis([-inf inf -0.01 0.01])
+axis([-inf inf -ymax ymax])
 
 subplot(4,3,4:6)
 plot(real(y1last)+2*shift_up); hold all
+plot(imag(y1last)+2*shift_up)
 plot(real(y2last)+shift_up)
+plot(imag(y2last)+shift_up)
 plot(real(y3last))
+plot(imag(y3last))
 title('Zoomed in Correlation Region')
 xlabel('Sample Number')
 ylabel('Magnitude')

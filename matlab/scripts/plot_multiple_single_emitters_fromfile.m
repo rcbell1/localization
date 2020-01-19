@@ -12,7 +12,9 @@ show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
 %     '../../data/3/tx_opp_side/rx9/rx_pulses_sliced.mat';
 %     '../../data/3/wired_center/rx9/rx_pulses_sliced.mat'};
 % tx_names = {'Center', 'Base', 'Side', 'Opposite Side', 'Wired Center'};
-file_paths = {'../../data/7 - long wires readjusted/tx_center/rfs9/1/rx_pulses_sliced.mat'};
+% file_paths = {'../../data/8 - long wires tx sync/tx_center/rfs33/1/rx_pulses_sliced.mat'};
+% file_paths = {'../../data/6 - long wired tests/tx_center/rfs9/1/rx_pulses_sliced.mat'};
+file_paths = {'../../data/10 - long wires 01_18_2020/tx_center/rfs20/3/rx_pulses_sliced.mat'};
 tx_names = {'Wired Center'};
 
 ylabels = {'1,2', '1,3'};
@@ -25,7 +27,9 @@ ylabels = {'1,2', '1,3'};
 % bounds = [-50 50 -50 50];
 
 % Equilateral Triangle
-a = 3.9624;     % length of one side of desired equilateral triangle
+% a = 3.9624;     % length of one side of desired equilateral triangle
+% a = 36.88;    % 50 ft cables
+a = 44.5;       % 75 ft cables
 b = sqrt(3)*a/2;
 refPos = [ 0  -a          -a/2; ...   % equilateral triangle
            0  0      sqrt(3)*a/2];
@@ -52,7 +56,7 @@ bounds = bcenter + [-90 90 -90 90];
 % Receiver properties
 wlen = 20;                % moving maximum window length in samples
 nstds = 9;                % number of standard deviations to declare peak
-percent_of_peak = 0.99;    % get the number of samples needed on either side 
+percent_of_peak = 0.7;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
 

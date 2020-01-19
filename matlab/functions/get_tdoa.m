@@ -1,4 +1,4 @@
-function [tdoas, corr_mag_sq, peak_idxs, lags, num_samps_from_peak] = ...
+function [tdoas, corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
     get_tdoa(x, wlen, nstds, fs, percent_of_peak, show_plots)
 
 [nsamps, numrefs] = size(x);
@@ -29,6 +29,7 @@ if sum(isnan(peak_idxs)) > 0
     lags(goodidx) = lags(goodidx);
 else
     tdoas = lags(peak_idxs)*Ts;
+    lags_full = lags; % debug sinc interp
     lags = lags(peak_idxs);
 end
 
