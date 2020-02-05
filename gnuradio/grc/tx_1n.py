@@ -26,7 +26,7 @@ class tx_1n(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.tx_gain = tx_gain = 20
+        self.tx_gain = tx_gain = 30
         self.sps = sps = 4
         self.span = span = 10
         self.samp_rate = samp_rate = 200e6/70

@@ -28,17 +28,18 @@ class rx_3n(gr.top_block):
         ##################################################
         self.tx_samp_rate = tx_samp_rate = 200e6/70
         self.sps = sps = 4
-        self.samp_rate = samp_rate = 200e6/14
+        self.samp_rate = samp_rate = 200e6/12
         self.prnLen = prnLen = 1000
         self.nzeros = nzeros = 3000
         self.npulses_stop = npulses_stop = 100
         self.tx_loc_str = tx_loc_str = 'tx_center'
-        self.test_num_str = test_num_str = '3'
+        self.test_num_str = test_num_str = '1'
         self.span = span = 10
-        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs20'
+        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs16'
         self.rx_gain = rx_gain = 20
         self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
-        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/10 - long wires 01_18_2020/'
+        self.full_path = full_path = ''
+        self.data_path_str = data_path_str = '/mnt/ramdisk/'
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
@@ -84,11 +85,11 @@ class rx_3n(gr.top_block):
         self.blocks_head_0_1 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
         self.blocks_head_0_0 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(nitems_stop))
-        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx3.dat', False)
+        self.blocks_file_sink_0_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, full_path + 'rx3.dat', False)
         self.blocks_file_sink_0_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx2.dat', False)
+        self.blocks_file_sink_0_0 = blocks.file_sink(gr.sizeof_gr_complex*1, full_path + 'rx2.dat', False)
         self.blocks_file_sink_0_0.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx1.dat', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, full_path + 'rx1.dat', False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
 
@@ -154,18 +155,12 @@ class rx_3n(gr.top_block):
 
     def set_tx_loc_str(self, tx_loc_str):
         self.tx_loc_str = tx_loc_str
-        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
-        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
-        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
 
     def get_test_num_str(self):
         return self.test_num_str
 
     def set_test_num_str(self, test_num_str):
         self.test_num_str = test_num_str
-        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
-        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
-        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
 
     def get_span(self):
         return self.span
@@ -178,9 +173,6 @@ class rx_3n(gr.top_block):
 
     def set_rx_samp_rate_str(self, rx_samp_rate_str):
         self.rx_samp_rate_str = rx_samp_rate_str
-        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
-        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
-        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -203,14 +195,20 @@ class rx_3n(gr.top_block):
         self.blocks_head_0_0.set_length(int(self.nitems_stop))
         self.blocks_head_0.set_length(int(self.nitems_stop))
 
+    def get_full_path(self):
+        return self.full_path
+
+    def set_full_path(self, full_path):
+        self.full_path = full_path
+        self.blocks_file_sink_0_0_0.open(self.full_path + 'rx3.dat')
+        self.blocks_file_sink_0_0.open(self.full_path + 'rx2.dat')
+        self.blocks_file_sink_0.open(self.full_path + 'rx1.dat')
+
     def get_data_path_str(self):
         return self.data_path_str
 
     def set_data_path_str(self, data_path_str):
         self.data_path_str = data_path_str
-        self.blocks_file_sink_0_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx3.dat')
-        self.blocks_file_sink_0_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx2.dat')
-        self.blocks_file_sink_0.open(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' + 'rx1.dat')
 
     def get_center_freq(self):
         return self.center_freq

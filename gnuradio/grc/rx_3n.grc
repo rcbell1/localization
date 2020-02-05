@@ -140,7 +140,61 @@
     </param>
     <param>
       <key>value</key>
-      <value>'/home/rbell/Documents/repos/localization/data/10 - long wires 01_18_2020/'</value>
+      <value>'/mnt/ramdisk/'</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(992, 452)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>full_path</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' </value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(992, 516)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>full_path</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>''</value>
     </param>
   </block>
   <block>
@@ -302,7 +356,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>'rfs20'</value>
+      <value>'rfs16'</value>
     </param>
   </block>
   <block>
@@ -329,7 +383,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>200e6/14</value>
+      <value>200e6/12</value>
     </param>
   </block>
   <block>
@@ -410,7 +464,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>'3'</value>
+      <value>'1'</value>
     </param>
   </block>
   <block>
@@ -491,7 +545,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx1.dat'</value>
+      <value>full_path + 'rx1.dat'</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -542,7 +596,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx2.dat'</value>
+      <value>full_path + 'rx2.dat'</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -593,7 +647,7 @@
     </param>
     <param>
       <key>file</key>
-      <value>data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/' + 'rx3.dat'</value>
+      <value>full_path + 'rx3.dat'</value>
     </param>
     <param>
       <key>_coordinate</key>

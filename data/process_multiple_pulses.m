@@ -7,8 +7,9 @@ clear; close all
 % path = '3/tx_opp_side/rx1/';
 % path = '5 - wireless tests desk/tx_center/rfs9/6/';
 % path = '8 - long wires tx sync/tx_center/rfs9/1/';
-path = '10 - long wires 01_18_2020/tx_center/rfs20/3/';
-nsamp_shift = 000; % symbols to shift in same ref frame as zeroes above
+% path = '11 - long wires 01_20_2020/tx_center/rfs14/1/';
+path = '12 - outdoors - 01_20_2020/tx_base/rfs14/2/';
+nsamp_shift = 1000; % symbols to shift in same ref frame as zeroes above
 fs_rx = 200e6/14;   % sample rate of receiver (denoms 22,40,200)
 
 fs_tx = 200e6/70;        % sample rate of transmitter

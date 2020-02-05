@@ -4,3 +4,4 @@
 /data/*/*
 *.asv
 *.zip
+*.pyc

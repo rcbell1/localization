@@ -9,6 +9,7 @@ numpairs = numrefs - 1;         % unique pairs of receivers
 % Generate the signal emitted by the target
 [yblock, fs, bounds] = load_signals_fromfile(file_path, show_plots);
 Npulses = length(bounds)-1;
+Npulses = 20;
 Ntrials = Npulses;
 
 avg_coords = [0;0];

@@ -32,7 +32,7 @@ for nn = 1:Ntrials
     y3 = add_noise(y2, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
 
     % Estimate the delay using the received signals
-    [tdoas_coarse(nn,:), corr_mag_sq, peak_idxs, lags, num_samps_from_peak] = ...
+    [tdoas_coarse(nn,:), corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
         get_tdoa(y3, wlen, nstds, fs, percent_of_peak, show_plots);
 
     if sum(isnan(peak_idxs)) ~= numpairs
@@ -56,6 +56,8 @@ for nn = 1:Ntrials
                 corr_peak_samples(:,ii) = corr_mag_sq(sample_idxs, ii);
             end
         end
+        corr_peak_samples = {corr_peak_samples; corr_mag_sq};    % temporary while debugging sinc interp
+        lags_new = {lags_new; lags_full};
         [tdoas_refined(nn,:), diffs] = refine_tdoa(lags_new, corr_peak_samples, fs, show_plots);
 
         % Feed the refined TDOAs to a localization algorithm

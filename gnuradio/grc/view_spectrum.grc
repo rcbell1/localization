@@ -1966,11 +1966,11 @@
     </param>
     <param>
       <key>dc_offs_enb0</key>
-      <value>""</value>
+      <value>False</value>
     </param>
     <param>
       <key>iq_imbal_enb0</key>
-      <value>""</value>
+      <value>False</value>
     </param>
     <param>
       <key>norm_gain0</key>
@@ -3118,7 +3118,7 @@
     </param>
     <param>
       <key>dev_addr</key>
-      <value>"addr=192.168.10.4"</value>
+      <value>"addr=192.168.10.2"</value>
     </param>
     <param>
       <key>dev_args</key>
