@@ -26,12 +26,13 @@ class tx_1n(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.tx_gain = tx_gain = 30
-        self.sps = sps = 4
+        self.tx_gain = tx_gain = 25
+        self.sps = sps = 2
         self.span = span = 10
-        self.samp_rate = samp_rate = 200e6/70
-        self.prnLen = prnLen = 1000
-        self.nzeros = nzeros = 3000
+        self.samp_rate = samp_rate = 200e6/66
+        self.roll_off = roll_off = 0.5
+        self.num_zeros = num_zeros = 3000
+        self.num_prn = num_prn = 1000
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
@@ -49,8 +50,8 @@ class tx_1n(gr.top_block):
         self.uhd_usrp_sink_0.set_gain(tx_gain, 0)
         self.uhd_usrp_sink_0.set_antenna('TX/RX', 0)
         self.root_raised_cosine_filter_0 = filter.interp_fir_filter_ccf(sps, firdes.root_raised_cosine(
-        	1, sps, 1, 0.35, sps*span))
-        self.blocks_vector_source_x_0 = blocks.vector_source_c(list(np.zeros(int(nzeros/2)))+list(2*np.random.randint(0,2,size=prnLen)-1)+list(np.zeros(int(nzeros/2))), True, 1, [])
+        	1, sps, 1, roll_off, sps*span))
+        self.blocks_vector_source_x_0 = blocks.vector_source_c(list(np.zeros(int(num_zeros/2)))+list(2*np.random.randint(0,2,size=num_prn)-1)+list(np.zeros(int(num_zeros/2))), True, 1, [])
 
 
 
@@ -73,14 +74,14 @@ class tx_1n(gr.top_block):
 
     def set_sps(self, sps):
         self.sps = sps
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, 0.35, self.sps*self.span))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, self.roll_off, self.sps*self.span))
 
     def get_span(self):
         return self.span
 
     def set_span(self, span):
         self.span = span
-        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, 0.35, self.sps*self.span))
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, self.roll_off, self.sps*self.span))
 
     def get_samp_rate(self):
         return self.samp_rate
@@ -89,19 +90,26 @@ class tx_1n(gr.top_block):
         self.samp_rate = samp_rate
         self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
 
-    def get_prnLen(self):
-        return self.prnLen
+    def get_roll_off(self):
+        return self.roll_off
 
-    def set_prnLen(self, prnLen):
-        self.prnLen = prnLen
-        self.blocks_vector_source_x_0.set_data(list(np.zeros(int(self.nzeros/2)))+list(2*np.random.randint(0,2,size=self.prnLen)-1)+list(np.zeros(int(self.nzeros/2))), [])
+    def set_roll_off(self, roll_off):
+        self.roll_off = roll_off
+        self.root_raised_cosine_filter_0.set_taps(firdes.root_raised_cosine(1, self.sps, 1, self.roll_off, self.sps*self.span))
 
-    def get_nzeros(self):
-        return self.nzeros
+    def get_num_zeros(self):
+        return self.num_zeros
 
-    def set_nzeros(self, nzeros):
-        self.nzeros = nzeros
-        self.blocks_vector_source_x_0.set_data(list(np.zeros(int(self.nzeros/2)))+list(2*np.random.randint(0,2,size=self.prnLen)-1)+list(np.zeros(int(self.nzeros/2))), [])
+    def set_num_zeros(self, num_zeros):
+        self.num_zeros = num_zeros
+        self.blocks_vector_source_x_0.set_data(list(np.zeros(int(self.num_zeros/2)))+list(2*np.random.randint(0,2,size=self.num_prn)-1)+list(np.zeros(int(self.num_zeros/2))), [])
+
+    def get_num_prn(self):
+        return self.num_prn
+
+    def set_num_prn(self, num_prn):
+        self.num_prn = num_prn
+        self.blocks_vector_source_x_0.set_data(list(np.zeros(int(self.num_zeros/2)))+list(2*np.random.randint(0,2,size=self.num_prn)-1)+list(np.zeros(int(self.num_zeros/2))), [])
 
     def get_center_freq(self):
         return self.center_freq
@@ -115,11 +123,6 @@ def main(top_block_cls=tx_1n, options=None):
 
     tb = top_block_cls()
     tb.start()
-    try:
-        raw_input('Press Enter to quit: ')
-    except EOFError:
-        pass
-    tb.stop()
     tb.wait()
 
 

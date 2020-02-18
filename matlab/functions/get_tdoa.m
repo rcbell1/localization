@@ -1,9 +1,10 @@
-function [tdoas, corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
+function [tdoas, tdoas_f, corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
     get_tdoa(x, wlen, nstds, fs, percent_of_peak, show_plots)
 
 [nsamps, numrefs] = size(x);
 Ts = 1/fs;
 
+%% Time domain cross correlation and peak detection
 % Cross correlate all receivers against the first
 corr_out = zeros(2*nsamps-1, numrefs-1);
 xmeans = mean(x);
@@ -32,4 +33,18 @@ else
     lags_full = lags; % debug sinc interp
     lags = lags(peak_idxs);
 end
+
+%% Frequency domain correlation and estimation
+tau_d = 300;    % max delay spread (ns)
+N2 = fs*tau_d*1e-9; % max number of channel taps to expect
+Nfft = 2*nsamps-1;
+
+X = fft(x,Nfft);
+for ii = 2:numrefs
+    S(:,ii-1) =  X(:,ii) .* conj(X(:,1));
+end
+corr_out2 = fftshift(ifft(S),1);
+omegak = 2*pi*(0:Nfft-1).'/(Nfft*Ts);
+test = angle(S(2:end,:).').'*180/pi;
+tdoas_f = mean(angle(S(2:end,:).').' ./ (omegak(2:end)));
 

@@ -14,7 +14,8 @@ show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
 % tx_names = {'Center', 'Base', 'Side', 'Opposite Side', 'Wired Center'};
 % file_paths = {'../../data/8 - long wires tx sync/tx_center/rfs33/1/rx_pulses_sliced.mat'};
 % file_paths = {'../../data/6 - long wired tests/tx_center/rfs9/1/rx_pulses_sliced.mat'};
-file_paths = {'../../data/12 - outdoors - 01_20_2020/tx_base/rfs14/2/rx_pulses_sliced.mat'};
+% file_paths = {'../../data/12 - outdoors - 01_20_2020/tx_base/rfs14/2/rx_pulses_sliced.mat'};
+file_paths = {'../../data/13/tx_center/rfs9/1/rx_pulses_sliced.mat'};
 tx_names = {'Wired Center'};
 
 ylabels = {'1,2', '1,3'};

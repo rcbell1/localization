@@ -131,20 +131,20 @@ end
 legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Location', 'Position', [0.5 0.9 0.1 0.1])
 
 %% Create table of TDOAs
-for kk = 1:numtargets
-    figure
-    Coarse = tdoas_coarse{kk,1}*1e9;
-    Fine = tdoas_refined{kk,1}*1e9;
-    T1 = table(Coarse, Fine);
-    uitable('ColumnWidth',{108 108 108 108}, 'Data',T1{:,:},'ColumnName',{'Coarse 12','Coarse 13','Fine 12','Fine 13'},...
-    'RowName',T1.Properties.RowNames,'Units', 'Normalized', 'Position',[0, 0, 1, 0.85]);
-
-    True = tdoas_true(kk,:);
-    T2 = table(True);
-    uitable('ColumnWidth',{108 108}, 'Data',T2{:,:},'ColumnName',{'True 12','True 13'},...
-    'RowName',T2.Properties.RowNames,'Units', 'Normalized', 'Position',[0.2, 0.85, 0.4, 0.15]);
-    % annotation('textbox', [0.2, 0.9, 0.1, 0.1], 'String', sprintf('%3.2f\n',tdoas_true));
-end
+% for kk = 1:numtargets
+%     figure
+%     Coarse = tdoas_coarse{kk,1}*1e9;
+%     Fine = tdoas_refined{kk,1}*1e9;
+%     T1 = table(Coarse, Fine);
+%     uitable('ColumnWidth',{108 108 108 108}, 'Data',T1{:,:},'ColumnName',{'Coarse 12','Coarse 13','Fine 12','Fine 13'},...
+%     'RowName',T1.Properties.RowNames,'Units', 'Normalized', 'Position',[0, 0, 1, 0.85]);
+% 
+%     True = tdoas_true(kk,:);
+%     T2 = table(True);
+%     uitable('ColumnWidth',{108 108}, 'Data',T2{:,:},'ColumnName',{'True 12','True 13'},...
+%     'RowName',T2.Properties.RowNames,'Units', 'Normalized', 'Position',[0.2, 0.85, 0.4, 0.15]);
+%     % annotation('textbox', [0.2, 0.9, 0.1, 0.1], 'String', sprintf('%3.2f\n',tdoas_true));
+% end
 
 
 % figure

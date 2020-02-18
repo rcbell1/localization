@@ -124,7 +124,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>0</value>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -140,7 +140,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>int(nitems_stop)</value>
+      <value>-1</value>
     </param>
   </block>
   <block>
@@ -2019,7 +2019,7 @@
     </param>
     <param>
       <key>hwm</key>
-      <value>-1</value>
+      <value>high_water_mark</value>
     </param>
     <param>
       <key>id</key>

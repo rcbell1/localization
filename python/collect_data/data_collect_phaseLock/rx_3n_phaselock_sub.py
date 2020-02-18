@@ -33,11 +33,12 @@ class rx_3n_phaselock_sub(gr.top_block):
         self.span = span = 10
         self.socket_addr = socket_addr = 'tcp://127.0.0.1:8000'
         self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
+        self.high_water_mark = high_water_mark = -1
 
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, socket_addr, 100, False, -1)
+        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, socket_addr, 100, False, high_water_mark)
         self.blocks_vector_sink_x_2 = blocks.vector_sink_c(1, 1024)
         self.blocks_vector_sink_x_1 = blocks.vector_sink_c(1, 1024)
         self.blocks_vector_sink_x_0 = blocks.vector_sink_c(1, 1024)
@@ -121,6 +122,12 @@ class rx_3n_phaselock_sub(gr.top_block):
         self.blocks_head_2.set_length(int(self.nitems_stop))
         self.blocks_head_1.set_length(int(self.nitems_stop))
         self.blocks_head_0.set_length(int(self.nitems_stop))
+
+    def get_high_water_mark(self):
+        return self.high_water_mark
+
+    def set_high_water_mark(self, high_water_mark):
+        self.high_water_mark = high_water_mark
 
 
 def main(top_block_cls=rx_3n_phaselock_sub, options=None):

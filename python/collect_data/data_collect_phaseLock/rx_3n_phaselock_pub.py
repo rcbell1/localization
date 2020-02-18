@@ -29,12 +29,13 @@ class rx_3n_phaselock_pub(gr.top_block):
         self.socket_addr = socket_addr = 'tcp://127.0.0.1:8000'
         self.samp_rate = samp_rate = 200e6/12
         self.rx_gain = rx_gain = 20
+        self.high_water_mark = high_water_mark = -1
         self.center_freq = center_freq = 2.395e9
 
         ##################################################
         # Blocks
         ##################################################
-        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, socket_addr, 100, False, -1)
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, socket_addr, 100, False, high_water_mark)
         self.uhd_usrp_source_0 = uhd.usrp_source(
         	",".join(("addr0=192.168.10.2,addr1=192.168.11.2,addr2=192.168.12.2", "")),
         	uhd.stream_args(
@@ -111,6 +112,12 @@ class rx_3n_phaselock_pub(gr.top_block):
 
         self.uhd_usrp_source_0.set_gain(self.rx_gain, 2)
 
+
+    def get_high_water_mark(self):
+        return self.high_water_mark
+
+    def set_high_water_mark(self, high_water_mark):
+        self.high_water_mark = high_water_mark
 
     def get_center_freq(self):
         return self.center_freq

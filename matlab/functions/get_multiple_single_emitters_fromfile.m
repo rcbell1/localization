@@ -23,7 +23,6 @@ tdoas_coarse = nan(Ntrials, numpairs);
 tdoas_refined = nan(Ntrials, numpairs);
 for nn = 1:Ntrials
     
-    % each row contains one recorded pulse
     y = yblock(bounds(nn):bounds(nn+1)-1,:);
     
     % Estimate the delay using the received signals
