@@ -62,8 +62,8 @@ for nn = 1:Ntrials
         [tdoas_refined(nn,:), diffs] = refine_tdoa(lags_new, corr_peak_samples, fs, show_plots);
 
         % Feed the refined TDOAs to a localization algorithm
-%         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
-        [coords(:,nn), unique] = geo_lsq(refPos, tdoas_f(nn,:));
+        [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
+%         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_f(nn,:));
 %         [coords, unique] = geo_sphere_int(refPos, tdoas_refined);
 
         % Compute statistical performance metrics

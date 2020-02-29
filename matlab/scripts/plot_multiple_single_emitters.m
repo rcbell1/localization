@@ -13,30 +13,65 @@ plot_toa_countours = 0;
 % [Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
 %     emitter_bounds(3):emitter_spacing:emitter_bounds(4));
 
+%% Receiver coords using rectangular coords 
 % Equilateral Triangle
-a = 3.9624;     % length of one side of desired equilateral triangle
-b = sqrt(3)*a/2;
-refPos = [ 0  -a          -a/2; ...   % equilateral triangle
-           0  0      sqrt(3)*a/2];
-% center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];  
-center = [0;0];
+% a = 3.9624;     % length of one side of desired equilateral triangle
+a = 39.4908;
+% b = sqrt(3)*a/2;
+% refPos = [ 0  -a          -a/2; ...   % equilateral triangle
+%            0  0      sqrt(3)*a/2];
+% % center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];
+% 
+% center = [0;0];
+% refPos = -center + refPos; % origin centered equilateral triangle
+% % refPos = [[0;0] refPos];    % add a ref node at the center
+
+%% Receiver coords using polar coords
+r1 = [22.8, -30*pi/180];
+r2 = [22.8, -150*pi/180];
+r3 = [22.8, 90*pi/180];
+center = r1;
+refPos = [ r1(1)*cos(r1(2)) r2(1)*cos(r2(2)) r3(1)*cos(r3(2)); ...   % equilateral triangle
+           r1(1)*sin(r1(2)) r2(1)*sin(r2(2)) r3(1)*sin(r3(2))];
+center = [center(1)*cos(center(2));center(1)*sin(center(2))];
 refPos = -center + refPos; % origin centered equilateral triangle
-% refPos = [[0;0] refPos];    % add a ref node at the center
+
+%% Emitter coords rectangular coords
 targetPos3 = [-3*a/4;sqrt(3)/4*a];   % chair
 targetPos2 = [-a/2;0];               % base
 targetPos4 = [-a/4;sqrt(3)/4*a];     % opp chair
 targetPos1 = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];     % center
 
 targetPos = [targetPos1 targetPos2 targetPos3 targetPos4];
+% targetPos = [targetPos1];
 
+%% Emitter coords polar coords
+% targetPos3 = [-3*a/4;sqrt(3)/4*a];   % chair
+% targetPos2 = [-a/2;0];               % base
+% targetPos4 = [2*r1(1)^2-4*r1(1)*cos(120);120];     % opp chair
+% targetPos1 = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];     % center
+% 
+% targetPos = [targetPos1 targetPos2 targetPos3 targetPos4];
+% % targetPos = [targetPos1];
+
+
+%% The figures will be bounded by this region
 bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPos(2,:))/3].';
-bounds = bcenter + [-3 3 -3 3;
-                  -3 3 -3 3;
-                  -3 3 -3 3
-                  -3 3 -3 3];
+% bounds = bcenter + [-3 3 -3 3;
+%                   -3 3 -3 3;
+%                   -3 3 -3 3
+%                   -3 3 -3 3];
+
+num_emitters = size(targetPos,2);
+% num_emitters = 10;
+temp = ones(2,2*num_emitters);
+temp(1,:) = -temp(1,:);
+temp2 = reshape(temp,4,[]).';
+a = sqrt(2*r1(1)^2+4*r1(1)*cos(120*pi/180));
+bounds = bcenter + 1.0*a*reshape(temp,4,[]).';
               
 %% Emitter pulse properties
-tx_pwr_dbm = -28;         % emitter transmit power in dBm (USRP max is 10 dBm)
+tx_pwr_dbm = 10;         % emitter transmit power in dBm (USRP max is 10 dBm)
 fs_tx = 200e6/70;
 Nsym = 1000;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols

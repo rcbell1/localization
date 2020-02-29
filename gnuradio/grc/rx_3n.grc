@@ -113,7 +113,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.395e9</value>
+      <value>2.35e9</value>
     </param>
   </block>
   <block>
@@ -124,11 +124,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(992, 196)</value>
+      <value>(1064, 196)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -151,7 +151,34 @@
     </param>
     <param>
       <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(888, 196)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
       <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>data_path_str</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>'/home/rbell/Documents/repos/localization/data/15/'</value>
+    </param>
+  </block>
+  <block>
+    <key>variable</key>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>1</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -178,7 +205,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -356,7 +383,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>'rfs16'</value>
+      <value>'rfs7'</value>
     </param>
   </block>
   <block>
@@ -383,7 +410,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>200e6/12</value>
+      <value>200e6/28</value>
     </param>
   </block>
   <block>
@@ -437,7 +464,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>4</value>
+      <value>2</value>
     </param>
   </block>
   <block>
@@ -518,7 +545,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>200e6/70</value>
+      <value>200e6/50</value>
     </param>
   </block>
   <block>
@@ -549,7 +576,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(648, 142)</value>
+      <value>(672, 140)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -694,7 +721,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(476, 156)</value>
+      <value>(488, 156)</value>
     </param>
     <param>
       <key>_rotation</key>

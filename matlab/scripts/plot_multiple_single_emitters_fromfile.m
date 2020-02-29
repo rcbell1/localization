@@ -5,18 +5,27 @@ plot_toa_countours = 0;
 show_plots = 0;         % show plots for debugging
 show_circles = 0;       % plot circles centered on emitter to visualize tdoa
 show_hyperbolas = 0;    % plot hyperbolas to visualize intersection point
+apply_calibration = 0;  % must have calibration file
 
+calib_path = '../../data/14 - wired 02_20_2020 1021/tx_center/rfs7/1/calibration.mat';
+file_paths = {'../../data/14 - wired 02_20_2020 1021/tx_center/rfs7/3/rx_pulses_sliced.mat'};
 % file_paths = {'../../data/3/tx_center/rx9/rx_pulses_sliced.mat';
 %     '../../data/3/tx_base/rx9/rx_pulses_sliced.mat';
 %     '../../data/3/tx_side/rx9/rx_pulses_sliced.mat';
 %     '../../data/3/tx_opp_side/rx9/rx_pulses_sliced.mat';
 %     '../../data/3/wired_center/rx9/rx_pulses_sliced.mat'};
-% tx_names = {'Center', 'Base', 'Side', 'Opposite Side', 'Wired Center'};
 % file_paths = {'../../data/8 - long wires tx sync/tx_center/rfs33/1/rx_pulses_sliced.mat'};
 % file_paths = {'../../data/6 - long wired tests/tx_center/rfs9/1/rx_pulses_sliced.mat'};
-% file_paths = {'../../data/12 - outdoors - 01_20_2020/tx_base/rfs14/2/rx_pulses_sliced.mat'};
-file_paths = {'../../data/13/tx_center/rfs9/1/rx_pulses_sliced.mat'};
+% file_paths = {'../../data/12 - outdoors - 01_20_2020/tx_center/rfs14/1/rx_pulses_sliced.mat';
+%     '../../data/12 - outdoors - 01_20_2020/tx_base/rfs14/1/rx_pulses_sliced.mat';
+%     '../../data/12 - outdoors - 01_20_2020/tx_side/rfs14/1/rx_pulses_sliced.mat';
+%     '../../data/12 - outdoors - 01_20_2020/tx_opp_side/rfs14/1/rx_pulses_sliced.mat'};
+
+
+% tx_names = {'Center', 'Base', 'Side', 'Opposite Side', 'Wired Center'};
+% tx_names = {'Center', 'Base', 'Side', 'Opposite Side'};
 tx_names = {'Wired Center'};
+
 
 ylabels = {'1,2', '1,3'};
 % bounds = [-4 4 -4 4;
@@ -27,33 +36,56 @@ ylabels = {'1,2', '1,3'};
 % file_paths = {'../../data/3/tx_side/rx9/rx_pulses_sliced.mat'};
 % bounds = [-50 50 -50 50];
 
+%% Receiver coords using rectangular coords
 % Equilateral Triangle
-a = 3.9624;     % length of one side of desired equilateral triangle
+% a = 3.9624;     % length of one side of desired equilateral triangle
 % a = 36.88;    % 50 ft cables
-% a = 44.5;       % 75 ft cables
-b = sqrt(3)*a/2;
-refPos = [ 0  -a          -a/2; ...   % equilateral triangle
-           0  0      sqrt(3)*a/2];
-% center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];  
-center = [0;0];
+a = 39.4908;       % 75 ft cables
+% b = sqrt(3)*a/2;
+% refPos = [ 0  -a          -a/2; ...   % equilateral triangle
+%            0  0      sqrt(3)*a/2];
+% % center = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];  
+% center = [0;0];
+% refPos = -center + refPos; % origin centered equilateral triangle
+% % refPos = [[0;0] refPos];    % add a ref node at the center
+
+%% Receiver coords using polar coords
+r1 = [22.8, -30*pi/180];
+r2 = [22.8, -150*pi/180];
+r3 = [22.8, 90*pi/180];
+center = r1;
+refPos = [ r1(1)*cos(r1(2)) r2(1)*cos(r2(2)) r3(1)*cos(r3(2)); ...   % equilateral triangle
+           r1(1)*sin(r1(2)) r2(1)*sin(r2(2)) r3(1)*sin(r3(2))];
+center = [center(1)*cos(center(2));center(1)*sin(center(2))];
 refPos = -center + refPos; % origin centered equilateral triangle
-% refPos = [[0;0] refPos];    % add a ref node at the center
+
+%% Emitter coords using rectangular coords
 targetPos3 = [-3*a/4;sqrt(3)/4*a];   % opp side
 targetPos2 = [-a/2;0];               % base
 targetPos4 = [-a/4;sqrt(3)/4*a];     % side
 targetPos1 = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];     % center
 
 % targetPos = [targetPos1 targetPos2 targetPos4 targetPos3 targetPos1];
+% targetPos = [targetPos1 targetPos2 targetPos4 targetPos3];
 targetPos = [targetPos1];
 
+
+%% Bounds of output plots
 bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPos(2,:))/3].';
 % bounds = bcenter + [-50 50 -50 50;
 %                   -3 3 -3 3;
 %                   -3 3 -3 3;
 %                   -3 3 -3 3;
 %                   -3 3 -3 3];
-bounds = bcenter + [-90 90 -90 90];
-      
+% bounds = bcenter + [-90 90 -90 90];
+     
+num_emitters = size(targetPos,2);
+temp = ones(2,2*num_emitters);
+temp(1,:) = -temp(1,:);
+a = sqrt(2*r1(1)^2+4*r1(1)*cos(120*pi/180));
+bounds = bcenter + 1.0*a*reshape(temp,4,[]).';
+
+%%
 % Receiver properties
 wlen = 20;                % moving maximum window length in samples
 nstds = 9;                % number of standard deviations to declare peak
@@ -81,7 +113,7 @@ for ii = 1:numfiles
         prob_correlation(ii,jj), prob_detection(ii,jj), Ntrials(ii,jj), ...
         unique(ii,jj)] = get_multiple_single_emitters_fromfile(...
         file_paths{ii}, targetPos, refPos, wlen, nstds, ...
-        percent_of_peak, show_plots);
+        percent_of_peak, apply_calibration, calib_path, show_plots);
 end
 stop_time = toc(start_time);
 

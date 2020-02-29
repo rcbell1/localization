@@ -52,7 +52,7 @@ for ii = 1:numrefs
         
         figure(hf2)
         subplot(nrows, 2, ii);
-        lagsup = lags_full(1,ii):1/up_rate:lags_full(end,ii)+(up_rate-1)/up_rate;
+        lagsup = lags_full(1):1/up_rate:lags_full(end)+(up_rate-1)/up_rate;
         plot(lagsup.'*Ts*1e9, corr_up1, '--','markersize',14); hold all
         plot(lagsup(1:up_rate:end).'*Ts*1e9, corr_mag_full(:,ii), '.-','markersize',14)
         plot(lagsup(midx).'*Ts*1e9, mval, 'o')

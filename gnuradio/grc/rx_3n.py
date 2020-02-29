@@ -26,21 +26,21 @@ class rx_3n(gr.top_block):
         ##################################################
         # Variables
         ##################################################
-        self.tx_samp_rate = tx_samp_rate = 200e6/70
-        self.sps = sps = 4
-        self.samp_rate = samp_rate = 200e6/12
+        self.tx_samp_rate = tx_samp_rate = 200e6/50
+        self.tx_loc_str = tx_loc_str = 'tx_center'
+        self.test_num_str = test_num_str = '1'
+        self.sps = sps = 2
+        self.samp_rate = samp_rate = 200e6/28
+        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs7'
         self.prnLen = prnLen = 1000
         self.nzeros = nzeros = 3000
         self.npulses_stop = npulses_stop = 100
-        self.tx_loc_str = tx_loc_str = 'tx_center'
-        self.test_num_str = test_num_str = '1'
+        self.data_path_str = data_path_str = '/home/rbell/Documents/repos/localization/data/15/'
         self.span = span = 10
-        self.rx_samp_rate_str = rx_samp_rate_str = 'rfs16'
         self.rx_gain = rx_gain = 20
         self.nitems_stop = nitems_stop = np.ceil(sps*(prnLen+nzeros)*npulses_stop*samp_rate/tx_samp_rate)
-        self.full_path = full_path = ''
-        self.data_path_str = data_path_str = '/mnt/ramdisk/'
-        self.center_freq = center_freq = 2.395e9
+        self.full_path = full_path = data_path_str + tx_loc_str + '/' + rx_samp_rate_str + '/' + test_num_str + '/'
+        self.center_freq = center_freq = 2.35e9
 
         ##################################################
         # Blocks
@@ -114,6 +114,20 @@ class rx_3n(gr.top_block):
         self.tx_samp_rate = tx_samp_rate
         self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
 
+    def get_tx_loc_str(self):
+        return self.tx_loc_str
+
+    def set_tx_loc_str(self, tx_loc_str):
+        self.tx_loc_str = tx_loc_str
+        self.set_full_path(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' )
+
+    def get_test_num_str(self):
+        return self.test_num_str
+
+    def set_test_num_str(self, test_num_str):
+        self.test_num_str = test_num_str
+        self.set_full_path(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' )
+
     def get_sps(self):
         return self.sps
 
@@ -128,6 +142,13 @@ class rx_3n(gr.top_block):
         self.samp_rate = samp_rate
         self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
+
+    def get_rx_samp_rate_str(self):
+        return self.rx_samp_rate_str
+
+    def set_rx_samp_rate_str(self, rx_samp_rate_str):
+        self.rx_samp_rate_str = rx_samp_rate_str
+        self.set_full_path(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' )
 
     def get_prnLen(self):
         return self.prnLen
@@ -150,29 +171,18 @@ class rx_3n(gr.top_block):
         self.npulses_stop = npulses_stop
         self.set_nitems_stop(np.ceil(self.sps*(self.prnLen+self.nzeros)*self.npulses_stop*self.samp_rate/self.tx_samp_rate))
 
-    def get_tx_loc_str(self):
-        return self.tx_loc_str
+    def get_data_path_str(self):
+        return self.data_path_str
 
-    def set_tx_loc_str(self, tx_loc_str):
-        self.tx_loc_str = tx_loc_str
-
-    def get_test_num_str(self):
-        return self.test_num_str
-
-    def set_test_num_str(self, test_num_str):
-        self.test_num_str = test_num_str
+    def set_data_path_str(self, data_path_str):
+        self.data_path_str = data_path_str
+        self.set_full_path(self.data_path_str + self.tx_loc_str + '/' + self.rx_samp_rate_str + '/' + self.test_num_str + '/' )
 
     def get_span(self):
         return self.span
 
     def set_span(self, span):
         self.span = span
-
-    def get_rx_samp_rate_str(self):
-        return self.rx_samp_rate_str
-
-    def set_rx_samp_rate_str(self, rx_samp_rate_str):
-        self.rx_samp_rate_str = rx_samp_rate_str
 
     def get_rx_gain(self):
         return self.rx_gain
@@ -203,12 +213,6 @@ class rx_3n(gr.top_block):
         self.blocks_file_sink_0_0_0.open(self.full_path + 'rx3.dat')
         self.blocks_file_sink_0_0.open(self.full_path + 'rx2.dat')
         self.blocks_file_sink_0.open(self.full_path + 'rx1.dat')
-
-    def get_data_path_str(self):
-        return self.data_path_str
-
-    def set_data_path_str(self, data_path_str):
-        self.data_path_str = data_path_str
 
     def get_center_freq(self):
         return self.center_freq

@@ -1,15 +1,15 @@
 function [coords, bias_coords, covar_coords, mse_coords, tdoas_coarse, ...
     tdoas_refined, prob_correlation, prob_detection, Ntrials, unique] = ...
     get_multiple_single_emitters_fromfile(file_path, targetPos, refPos, ...
-    wlen, nstds, percent_of_peak, show_plots)
+    wlen, nstds, percent_of_peak, apply_calibration, calib_path, show_plots)
 
 [numdims, numrefs] = size(refPos);
 numpairs = numrefs - 1;         % unique pairs of receivers
 
-% Generate the signal emitted by the target
+% Get the signal emitted by the target
 [yblock, fs, bounds] = load_signals_fromfile(file_path, show_plots);
 Npulses = length(bounds)-1;
-Npulses = 20;
+% Npulses = 20;
 Ntrials = Npulses;
 
 avg_coords = [0;0];
@@ -24,10 +24,10 @@ tdoas_refined = nan(Ntrials, numpairs);
 for nn = 1:Ntrials
     
     y = yblock(bounds(nn):bounds(nn+1)-1,:);
-    
+        
     % Estimate the delay using the received signals
     [tdoas_coarse(nn,:), corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
-        get_tdoa(y, wlen, nstds, fs, percent_of_peak, show_plots);
+        get_tdoa(y, wlen, nstds, fs, percent_of_peak, apply_calibration, calib_path, show_plots);
 
     if sum(isnan(peak_idxs)) ~= numpairs
         detection_count = detection_count + 1;

@@ -59,17 +59,17 @@ def main():
     num_prn = 1000  # number of prn symbols per pulse in symbols
     roll_off = 0.5  # the shaping filter roll off factor
     span = 10       # the span of shaping filter in symbols
-    rx_samp_rate = 200e6/22
-    tx_samp_rate = 200e6/66
-    center_freq = 2.395e9
+    rx_samp_rate = 200e6/28
+    tx_samp_rate = 200e6/50
+    center_freq = 2.35e9
     sps = 2
-    tx_gain = 25
-    rx_gain = 18
+    tx_gain = 10
+    rx_gain = 15
     num_rx = 3
     socket_addr = 'tcp://localhost:8000'
-    filepath_save = '~/Documents/repos/localization/data/14/tx_center/rfs9/'
+    filepath_save = '~/Documents/repos/localization/data/14 - wired 02_20_2020 1021/tx_center/rfs7/'
     num_switches = 3
-    default_port = 2
+    default_port = 1
     zmq_pub_high_water_mark = 5
     zmq_sub_high_water_mark = 10
     flush_zmq_buffers_en = 1
@@ -88,6 +88,7 @@ def main():
         tx_stream = list(np.zeros(sps*int(num_zeros/2)))+ \
             list(tx_pulse) + \
             list(np.zeros(sps*int(num_zeros/2)))
+        # pdb.set_trace()
         tx = tx_1n()
         tx.set_samp_rate(tx_samp_rate)
         tx.set_center_freq(center_freq)
