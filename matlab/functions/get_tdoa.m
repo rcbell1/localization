@@ -1,4 +1,4 @@
-function [tdoas, corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
+function [tdoas, tdoas_f, corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
     get_tdoa(x, wlen, nstds, fs, percent_of_peak, apply_calibration, calib_path, show_plots)
 
 [nsamps, numrefs] = size(x);
@@ -44,6 +44,7 @@ if sum(isnan(peak_idxs)) > 0
     tdoas(goodidx) = lags(goodidx)*Ts;
     lags(nanidx) = NaN;
     lags(goodidx) = lags(goodidx);
+    lags_full = lags; % debug sinc interp
 else
     tdoas = lags(peak_idxs)*Ts;
     lags_full = lags; % debug sinc interp

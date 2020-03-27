@@ -1,9 +1,11 @@
 function [coords, bias_coords, covar_coords, mse_coords, tdoas_true, ...
-    tdoas_coarse, tdoas_refined, prob_correlation, prob_detection, ...
+    tdoas_coarse, tdoas_refined, prob_correlation, prob_detection, grid, ...
     unique] = get_single_emitter2(targetPos, refPos, Ntrials, ...
     tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, nstds, ...
-    percent_of_peak, show_plots)
+    percent_of_peak, apply_calibration, calib_path, grid_def, ...
+    delay_spread, num_paths, show_plots)
 
+grid = 0; % if dpd is not used it stays this by default
 [numdims, numrefs] = size(refPos);
 numpairs = numrefs - 1;         % unique pairs of receivers
 
@@ -16,6 +18,9 @@ y1 = resample(x, P, Q);
 % Add proper delays that correspond to target and emitter locations
 [y2, tdoas_true, ranges] = add_delay2(y1, targetPos, refPos, ...
     fs, show_plots);
+
+% Add multipath
+y3 = add_multipath(y2, fc, fs, ranges, delay_spread, num_paths, show_plots);
 
 avg_coords = [0;0];
 MSE_coords = [0 0;0 0];
@@ -30,11 +35,11 @@ tdoas_f = nan(Ntrials, numpairs);
 for nn = 1:Ntrials
     
     % Add noise at the proper SNR levels for free space path losses
-    y3 = add_noise(y2, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
+    y4 = add_noise(y3, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
 
     % Estimate the delay using the received signals
     [tdoas_coarse(nn,:), tdoas_f(nn,:), corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
-        get_tdoa(y3, wlen, nstds, fs, percent_of_peak, show_plots);
+        get_tdoa(y4, wlen, nstds, fs, percent_of_peak, apply_calibration, calib_path, show_plots);
 
     if sum(isnan(peak_idxs)) ~= numpairs
         detection_count = detection_count + 1;
@@ -65,6 +70,7 @@ for nn = 1:Ntrials
         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
 %         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_f(nn,:));
 %         [coords, unique] = geo_sphere_int(refPos, tdoas_refined);
+%         [coords(:,nn), grid, unique] = dpd(y4, fs, refPos, grid_def);
 
         % Compute statistical performance metrics
         avg_coords = avg_coords + coords(:,nn); 

@@ -2,10 +2,16 @@ clear; close all
 addpath('../functions')
 
 plot_toa_countours = 0;
+apply_calibration = 0; % for hardware sims
+calib_path = [];
+Ntrials = 1000;            % keep at 1 for this plot, only for heat maps
 % plot_hull = 1;          % plot convex hull or ref stations
 % emitter_bounds = [-100 100 -100 100];   % bounds of emitter locations
 % plot_bounds = [-250 250 -250 250];  % outer boundary of plot figure
 
+%% Channel parameters
+delay_spread = 300e-9;   % time difference between first received path and last (s)
+num_paths = 2;          % number of multipath paths per reciever
 % Generate target emitter positions [x; y] (meters)
 % numEmitters = 100;       % total number of random emitter locations to create
 % targetPos = [randi([emitter_bounds(1) emitter_bounds(2)],1,numEmitters); ...    
@@ -13,10 +19,24 @@ plot_toa_countours = 0;
 % [Tx, Ty] = meshgrid(emitter_bounds(1):emitter_spacing:emitter_bounds(2), ...
 %     emitter_bounds(3):emitter_spacing:emitter_bounds(4));
 
+%% Needed by dpd
+% -43,3,-4,37
+adder = 100;
+grid_xmin = -43 - adder;
+grid_xmax = 3 + adder;
+grid_ymin = -4 - adder;
+grid_ymax = 37 + adder;
+grid_numx = 20;
+grid_numy = 20;
+
+grid_def = [grid_xmin grid_xmax;
+            grid_ymin grid_ymax;
+            grid_numx grid_numy];
+
 %% Receiver coords using rectangular coords 
 % Equilateral Triangle
 % a = 3.9624;     % length of one side of desired equilateral triangle
-a = 39.4908;
+% a = 39.4908;
 % b = sqrt(3)*a/2;
 % refPos = [ 0  -a          -a/2; ...   % equilateral triangle
 %            0  0      sqrt(3)*a/2];
@@ -27,6 +47,7 @@ a = 39.4908;
 % % refPos = [[0;0] refPos];    % add a ref node at the center
 
 %% Receiver coords using polar coords
+a = 39.4908;
 r1 = [22.8, -30*pi/180];
 r2 = [22.8, -150*pi/180];
 r3 = [22.8, 90*pi/180];
@@ -41,8 +62,11 @@ targetPos3 = [-3*a/4;sqrt(3)/4*a];   % chair
 targetPos2 = [-a/2;0];               % base
 targetPos4 = [-a/4;sqrt(3)/4*a];     % opp chair
 targetPos1 = [sum(refPos(1,:))/3; sum(refPos(2,:))/3];     % center
+targetPos5 = [-a/4+50;sqrt(3)/4*a+50];     % opp chair
 
+% targetPos = [targetPos1 targetPos2 targetPos3 targetPos4 targetPos5];
 targetPos = [targetPos1 targetPos2 targetPos3 targetPos4];
+[numdims, numtargets] = size(targetPos);
 % targetPos = [targetPos1];
 
 %% Emitter coords polar coords
@@ -62,56 +86,44 @@ bcenter = [sum(refPos(1,:))/3; sum(refPos(1,:))/3; sum(refPos(2,:))/3; sum(refPo
 %                   -3 3 -3 3
 %                   -3 3 -3 3];
 
-num_emitters = size(targetPos,2);
-% num_emitters = 10;
-temp = ones(2,2*num_emitters);
+temp = ones(2,2*numtargets);
 temp(1,:) = -temp(1,:);
 temp2 = reshape(temp,4,[]).';
+r1 = 30;
 a = sqrt(2*r1(1)^2+4*r1(1)*cos(120*pi/180));
 bounds = bcenter + 1.0*a*reshape(temp,4,[]).';
               
 %% Emitter pulse properties
-tx_pwr_dbm = 10;         % emitter transmit power in dBm (USRP max is 10 dBm)
-fs_tx = 200e6/70;
+tx_pwr_dbm = -37;         % emitter transmit power in dBm (USRP max is 10 dBm)
+fs_tx = 200e6/10;
 Nsym = 1000;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols
-sps = 4;                % samples per symbol at the transmitter
+sps = 2;                % samples per symbol at the transmitter
 fsym = fs_tx/sps;             % symbol rate of transmitter (signal bandwidth)
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 fc = 2.395e9;             % center frequency of transmitter
 
 %% Receiver properties
-fs = 200e6/22;                % receiver sample rates (Hz)
+fs = 200e6/1;                % receiver sample rates (Hz)
 wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples, odd number
 nstds = 9;                % number of standard deviations to declare peak
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
 
-% tx_pwr_dbm = -10;       % emitter transmit power in dBm
-% fc = 915e6;             % center frequency of transmitter
-% fs = 20e6;              % receiver sample rates (Hz)
-% Nsym = 40;              % number of symbols in signals
-% 
-% span = 20;              % total length of shaping filter in symbols
-% sps = 5;                % samples per symbol at the receiver sample rate
-% fhigh = 2500*fs;           % high speed sample rate where delays are added (Hz)
-% wlen = 2*sps+1;           % moving maximum window length in samples
-% nstds = 6;              % number of standard deviations to declare peak
-
 % General simulation properties
 c = 299792458;          % speed of light m/s
-Ntrials = 100;            % keep at 1 for this plot, only for heat maps
 
 tic
 jj = 1; % for future use
 for ii = 1:size(targetPos,2)
     [coords{ii,jj}, bias_coords{ii,jj}, covar_coords{ii,jj}, ...
-        mse_coords(ii,jj), tdoas_true(ii,:), tdoas_coarse{ii,jj}, tdoas_refined{ii,jj}, ...
-        prob_correlation(ii,jj), prob_detection(ii,jj), ...
-        unique(ii,jj)] = get_single_emitter2(targetPos(:,ii), refPos, ...
-        Ntrials, tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, ...
-        nstds, percent_of_peak, 0);
+    mse_coords(ii,jj), tdoas_true(ii,:), tdoas_coarse{ii,jj}, ...
+    tdoas_refined{ii,jj}, prob_correlation(ii,jj), prob_detection(ii,jj), ... 
+    dpd_grid, unique(ii,jj)] = get_single_emitter2(targetPos(:,ii), refPos, ...
+    Ntrials, tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, ...
+    nstds, percent_of_peak, apply_calibration, calib_path, grid_def, ...
+    delay_spread, num_paths, 0);
 end
 toc
 
@@ -134,8 +146,14 @@ for kk = 1:numtargets
             'FontSize', 8);
         set(h, 'Color',[1, 1 ,1])
     end
-    plot(targetPos(1,kk),targetPos(2,kk), 'bx', 'MarkerSize',5);
+    plot(targetPos(1,kk),targetPos(2,kk), 'kx', 'MarkerSize',18);
 
+%     for ii = 1:grid_numx*grid_numy
+%         plot(dpd_grid(1,ii), dpd_grid(2,ii), 'k.', 'MarkerFaceColor', 'k', ...
+%             'MarkerSize',6, 'HandleVisibility','off'); 
+%         hold all
+%     end
+    
     for nn = 1:length(coords{kk,1})
         plot(coords{kk,1}(1,nn),coords{kk,1}(2,nn), 'b.', 'MarkerSize',12, 'HandleVisibility','off');
     end

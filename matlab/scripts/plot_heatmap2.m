@@ -2,12 +2,28 @@ clear; close all
 addpath('../functions')
 
 %% General simulation properties
-Ntrials = 100;          % number of noise instances per emitter location
+apply_calibration = 0; % for hardware sims
+calib_path = [];
+Ntrials = 1;          % number of noise instances per emitter location
 % emitter_bounds = [-10000 10000 -10000 10000];   % Good for prob detection plots
 emitter_bounds = [-20 20 -20 20];   % bounds of emitter locations
-emitter_spacing = 0.2;   % spacing between test emitter locations in meters
+emitter_spacing = 0.5;   % spacing between test emitter locations in meters
 
-% Reference receiver positions [x; y] (meters)
+%% Needed by dpd
+% -43,3,-4,37
+adder = 100;
+grid_xmin = -43 - adder;
+grid_xmax = 3 + adder;
+grid_ymin = -4 - adder;
+grid_ymax = 37 + adder;
+grid_numx = 20;
+grid_numy = 20;
+
+grid_def = [grid_xmin grid_xmax;
+            grid_ymin grid_ymax;
+            grid_numx grid_numy];
+
+%% Reference receiver positions [x; y] (meters)
 % refPos = [-40 40 0 -70 70 -20 20 -35 -8 22; ... % 10-pnt star
 %           -40 -40 80 40 40 40 40 16 -7 11];   
 % refPos = [-50 50 0; ... % triangle
@@ -36,7 +52,7 @@ beta = 0.4;             % excess bandwidth of tx pulse shaping filter
 fc = 915e6;             % center frequency of transmitter
 
 %% Receiver properties
-fs = 100e6;                % receiver sample rates (Hz)
+fs = 200e6/1;                % receiver sample rates (Hz)
 wlen = 2*ceil(fs/fsym)+1; % moving maximum window length in samples, odd number
 nstds = 9;                % number of standard deviations to declare peak
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
@@ -50,14 +66,14 @@ percent_of_peak = 0.8;    % get the number of samples needed on either side
 
 tic
 [nrows, ncols] = size(Tx);
-parfor ii = 1:nrows
+for ii = 1:nrows
     for jj = 1:ncols
         targetPos = [Tx(ii,jj); Ty(ii,jj)];
-        [~, ~, ~, mse_coords(ii,jj), ~, prob_correlation(ii,jj), ...
-            prob_detection(ii,jj), unique(ii,jj)] = ...
+        [~, ~, ~, mse_coords(ii,jj), ~, ~, ~, prob_correlation(ii,jj), ...
+            prob_detection(ii,jj), grid, unique(ii,jj)] = ...
             get_single_emitter2(targetPos, refPos, Ntrials, tx_pwr_dbm, ...
             fc, fs, fsym, Nsym, span, sps, beta, wlen, nstds, ...
-            percent_of_peak, 0);
+            percent_of_peak, apply_calibration, calib_path, grid_def, 0);
     end
 end
 run_time = toc/60;

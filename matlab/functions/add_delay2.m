@@ -16,10 +16,11 @@ for ii = 2:numrefs
 end
 tdoas = rangeDiffs/c;
 
-max_num_delay_samps = ceil(max(toas)/Ts);
+max_num_delay_samps = ceil((max(toas))/Ts);
 out = zeros(max_num_delay_samps+numsamps,numrefs);
 for ii = 1:numrefs
     xd = delayseq([x; zeros(max_num_delay_samps,1)], toas(ii), fs);
+    %delay each multipath by toa+multi_delay and sum with los path here
     out(:,ii) = [xd; zeros((max_num_delay_samps+numsamps)-length(xd),1)];
 end
 [~, first_nonzero_idxs] = max(out~=0);
