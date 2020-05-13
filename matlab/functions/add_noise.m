@@ -1,4 +1,4 @@
-function [out] = add_noise(x, tx_pwr_dbm, noise_bw, fc, ranges, show_plots)
+function [out, avg_snr_db] = add_noise(x, tx_pwr_dbm, noise_bw, fc, ranges, show_plots)
 
 c = 299792458;      % speed of light m/s
 Gr = 0;             % receiver gain dBi, 0 for omnidirectional antenna
@@ -34,6 +34,8 @@ x_norm = sqrt(rx_pwr).*x;
 % std_noise = sqrt(var_noise);
 noise = std_noise.*(randn(nrows, ncols)+1j*randn(nrows,ncols));
 out = x_norm + noise;
+avg_snr_db = 10*log10(rx_pwr./(2*std_noise.^2));
+% out = x_norm;
 
 if show_plots == 1
     figure

@@ -6,18 +6,20 @@ apply_calibration = 0; % for hardware sims
 calib_path = [];
 Ntrials = 1;          % number of noise instances per emitter location
 % emitter_bounds = [-10000 10000 -10000 10000];   % Good for prob detection plots
-emitter_bounds = [-20 20 -20 20];   % bounds of emitter locations
+emitter_bounds = [-140 100 -100 140];   % bounds of emitter locations
+% emitter_bounds = [-10 10 -10 10];
 emitter_spacing = 0.5;   % spacing between test emitter locations in meters
+initial_coords = [-25;5]; % for taylor linearization algorithm
 
 %% Needed by dpd
 % -43,3,-4,37
-adder = 100;
-grid_xmin = -43 - adder;
-grid_xmax = 3 + adder;
-grid_ymin = -4 - adder;
-grid_ymax = 37 + adder;
-grid_numx = 20;
-grid_numy = 20;
+adder = 0;
+grid_xmin = -140 - adder;
+grid_xmax = 100 + adder;
+grid_ymin = -100 - adder;
+grid_ymax = 140 + adder;
+grid_numx = 30;
+grid_numy = 30;
 
 grid_def = [grid_xmin grid_xmax;
             grid_ymin grid_ymax;
@@ -41,6 +43,17 @@ refPos = [[0;0] refPos];
 %           0 -50 -50 50];
 % refPos = [0  -40  40 -70 70; ... % 5-pnt star
 %           80 -40 -40  40 40]; 
+
+%% Receiver coords using polar coords
+a = 39.4908;
+r1 = [22.8, -30*pi/180];
+r2 = [22.8, -150*pi/180];
+r3 = [22.8, 90*pi/180];
+center = r1;
+refPos = [ r1(1)*cos(r1(2)) r2(1)*cos(r2(2)) r3(1)*cos(r3(2)); ...   % equilateral triangle
+           r1(1)*sin(r1(2)) r2(1)*sin(r2(2)) r3(1)*sin(r3(2))];
+center = [center(1)*cos(center(2));center(1)*sin(center(2))];
+refPos = -center + refPos; % origin centered equilateral triangle
 
 %% Emitter pulse properties
 tx_pwr_dbm = 7;         % emitter transmit power in dBm (USRP max is 10 dBm)
@@ -66,14 +79,21 @@ percent_of_peak = 0.8;    % get the number of samples needed on either side
 
 tic
 [nrows, ncols] = size(Tx);
-for ii = 1:nrows
+parfor ii = 1:nrows
     for jj = 1:ncols
         targetPos = [Tx(ii,jj); Ty(ii,jj)];
+%         [~, ~, ~, mse_coords(ii,jj), ~, ~, ~, prob_correlation(ii,jj), ...
+%             prob_detection(ii,jj), grid, unique(ii,jj)] = ...
+%             get_single_emitter2(targetPos, refPos, Ntrials, tx_pwr_dbm, ...
+%             fc, fs, fsym, Nsym, span, sps, beta, wlen, nstds, ...
+%             percent_of_peak, apply_calibration, calib_path, grid_def, 0);
+        
         [~, ~, ~, mse_coords(ii,jj), ~, ~, ~, prob_correlation(ii,jj), ...
-            prob_detection(ii,jj), grid, unique(ii,jj)] = ...
+            prob_detection(ii,jj), dpd_grid{ii,jj}, ~, unique(ii,jj)] = ...
             get_single_emitter2(targetPos, refPos, Ntrials, tx_pwr_dbm, ...
             fc, fs, fsym, Nsym, span, sps, beta, wlen, nstds, ...
-            percent_of_peak, apply_calibration, calib_path, grid_def, 0);
+            percent_of_peak, apply_calibration, calib_path, grid_def, ...
+            [], [], [], [], 0, initial_coords, 0);
     end
 end
 run_time = toc/60;
@@ -88,8 +108,9 @@ rmse_coords = sqrt(mse_coords);
 figure
 hpc = pcolor(Tx, Ty, rmse_coords); hold all
 colormap('jet')
+% shading interp;
 h = colorbar;
-caxis([0 4])           % sets the limits of the colormap
+caxis([0 8])           % sets the limits of the colormap
 set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
 set(hpc, 'EdgeColor', 'none')
 % hpc.FaceColor = 'interp';
@@ -110,55 +131,62 @@ h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
 set(h, 'Color',[1, 1 ,1])
 
-% Plot probability of detection using pcolor
-figure
-hpc = pcolor(Tx, Ty, prob_detection); hold all
-colormap('jet')
-h = colorbar;
-caxis([0 1])           % sets the limits of the colormap
-set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
-set(hpc, 'EdgeColor', 'none')
-xlabel('x (m)')
-ylabel('y (m)')
-title('Probability of Detection')
-title(h,sprintf('Probability'))
-
-for ii = 1:numrefs
-    plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
-        'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
-    h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
-        'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
-        'FontSize', 6);
-    set(h, 'Color',[1, 1 ,1])
+% Plot DPD grid
+for ii = 1:grid_numx*grid_numy
+    plot(dpd_grid{1,1}(1,:), dpd_grid{1,1}(2,:), 'w.', 'MarkerFaceColor', 'k', ...
+        'MarkerSize',6, 'HandleVisibility','off'); 
+    hold all
 end
-h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
-    sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
-set(h, 'Color',[1, 1 ,1])
+
+% Plot probability of detection using pcolor
+% figure
+% hpc = pcolor(Tx, Ty, prob_detection); hold all
+% colormap('jet')
+% h = colorbar;
+% caxis([0 1])           % sets the limits of the colormap
+% set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
+% set(hpc, 'EdgeColor', 'none')
+% xlabel('x (m)')
+% ylabel('y (m)')
+% title('Probability of Detection')
+% title(h,sprintf('Probability'))
+% 
+% for ii = 1:numrefs
+%     plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
+%         'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
+%     h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
+%         'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
+%         'FontSize', 6);
+%     set(h, 'Color',[1, 1 ,1])
+% end
+% h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
+%     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
+% set(h, 'Color',[1, 1 ,1])
 
 % Plot probability of correlation using pcolor
-figure
-hpc = pcolor(Tx, Ty, prob_correlation); hold all
-colormap('jet')
-h = colorbar;
-caxis([0 1])           % sets the limits of the colormap
-set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
-set(hpc, 'EdgeColor', 'none')
-xlabel('x (m)')
-ylabel('y (m)')
-title('Probability of Correlation')
-title(h,sprintf('Probability'))
-
-for ii = 1:numrefs
-    plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
-        'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
-    h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
-        'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
-        'FontSize', 6);
-    set(h, 'Color',[1, 1 ,1])
-end
-h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
-    sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
-set(h, 'Color',[1, 1 ,1])
+% figure
+% hpc = pcolor(Tx, Ty, prob_correlation); hold all
+% colormap('jet')
+% h = colorbar;
+% caxis([0 1])           % sets the limits of the colormap
+% set(gca,'YDir','normal','color', 'w')% keeps y-axis correct orientation
+% set(hpc, 'EdgeColor', 'none')
+% xlabel('x (m)')
+% ylabel('y (m)')
+% title('Probability of Correlation')
+% title(h,sprintf('Probability'))
+% 
+% for ii = 1:numrefs
+%     plot(refPos(1,ii), refPos(2,ii), 'k.','HandleVisibility','off', ...
+%         'MarkerFaceColor', [0 1 0], 'MarkerSize',28);
+%     h = text(refPos(1,ii), refPos(2,ii), sprintf('%i', ii), ...
+%         'horizontalalignment', 'center', 'verticalalignment', 'middle', ...
+%         'FontSize', 6);
+%     set(h, 'Color',[1, 1 ,1])
+% end
+% h = text(emitter_bounds(1),0.9*emitter_bounds(4), ...
+%     sprintf('Tx EIRP: %2.0f dBm', tx_pwr_dbm));
+% set(h, 'Color',[1, 1 ,1])
 
 
 

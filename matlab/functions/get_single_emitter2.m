@@ -1,9 +1,10 @@
 function [coords, bias_coords, covar_coords, mse_coords, tdoas_true, ...
-    tdoas_coarse, tdoas_refined, prob_correlation, prob_detection, grid, ...
-    unique] = get_single_emitter2(targetPos, refPos, Ntrials, ...
-    tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, nstds, ...
-    percent_of_peak, apply_calibration, calib_path, grid_def, ...
-    delay_spread, num_paths, show_plots)
+    tdoas_coarse, tdoas_refined, prob_correlation, prob_detection, avg_snr_db, ...
+    grid, a, unique, corr_mag_sq_sv] = get_single_emitter2(targetPos, ...
+    refPos, Ntrials, tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, ...
+    wlen, nstds, percent_of_peak, apply_calibration, calib_path, grid_def, ...
+    delay_spread, num_paths, max_num_paths, multi_idx, multi_options, ...
+    initial_coords, show_plots)
 
 grid = 0; % if dpd is not used it stays this by default
 [numdims, numrefs] = size(refPos);
@@ -14,13 +15,11 @@ numpairs = numrefs - 1;         % unique pairs of receivers
 
 [P,Q] = rat(fs/(fsym*sps));
 y1 = resample(x, P, Q);
+y1 = y1/sqrt(mean(abs(y1).^2)); % renormalize power to 1
 
 % Add proper delays that correspond to target and emitter locations
 [y2, tdoas_true, ranges] = add_delay2(y1, targetPos, refPos, ...
     fs, show_plots);
-
-% Add multipath
-y3 = add_multipath(y2, fc, fs, ranges, delay_spread, num_paths, show_plots);
 
 avg_coords = [0;0];
 MSE_coords = [0 0;0 0];
@@ -34,13 +33,22 @@ tdoas_refined = nan(Ntrials, numpairs);
 tdoas_f = nan(Ntrials, numpairs);
 for nn = 1:Ntrials
     
+    % Add multipath
+    [y3, a(:,nn)] = add_multipath(y2, fc, fs, ranges, delay_spread, num_paths, ...
+    max_num_paths, multi_idx, multi_options, show_plots);
+    
     % Add noise at the proper SNR levels for free space path losses
-    y4 = add_noise(y3, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
+    [y4, avg_snr_db(:,nn)] = add_noise(y3, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);
 
+    % Perform an AGC operation to received samples
+    y5 = y4./max(y4);
+    
     % Estimate the delay using the received signals
     [tdoas_coarse(nn,:), tdoas_f(nn,:), corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
-        get_tdoa(y4, wlen, nstds, fs, percent_of_peak, apply_calibration, calib_path, show_plots);
-
+        get_tdoa(y5, wlen, nstds, fs, percent_of_peak, apply_calibration, calib_path, show_plots);
+    rx_num = 1;
+    corr_mag_sq_sv(:,nn) = corr_mag_sq(:,rx_num);
+    
     if sum(isnan(peak_idxs)) ~= numpairs
         detection_count = detection_count + 1;
     end
@@ -67,11 +75,13 @@ for nn = 1:Ntrials
         [tdoas_refined(nn,:), diffs] = refine_tdoa(lags_new, corr_peak_samples, fs, show_plots);
 
         % Feed the refined TDOAs to a localization algorithm
-        [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
+%         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
 %         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_f(nn,:));
 %         [coords, unique] = geo_sphere_int(refPos, tdoas_refined);
-%         [coords(:,nn), grid, unique] = dpd(y4, fs, refPos, grid_def);
-
+%         [coords(:,nn), unique] = taylor_linearization(refPos, tdoas_refined(nn,:),initial_coords,[]);
+        % DPD does not require peak detection or prior estimation of parameters
+        [coords(:,nn), grid, ~, unique] = dpd(y5, fs, refPos, grid_def);
+        
         % Compute statistical performance metrics
         avg_coords = avg_coords + coords(:,nn); 
         MSE_coords = MSE_coords + (targetPos - coords(:,nn))*(targetPos-coords(:,nn))';

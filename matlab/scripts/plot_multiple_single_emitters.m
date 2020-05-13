@@ -11,7 +11,16 @@ Ntrials = 1000;            % keep at 1 for this plot, only for heat maps
 
 %% Channel parameters
 delay_spread = 300e-9;   % time difference between first received path and last (s)
-num_paths = 2;          % number of multipath paths per reciever
+multi_option = 0;   % determines the type of plot to generate
+                    % 0 = no multipath
+                    % 1 = two path with various delays between them
+                    % 2 = varrying number of paths between 1 and num_paths
+                    % with increasing delay spread
+num_paths = 2;      % number of multipaths per reciever for option 1
+multi_jump = 5;     % skip amount for option 1, 1:multi_jump:num_paths
+num_delay_spreads = 10; % number of delay spreads to test in option 2
+max_num_paths = inf; % max number paths for option 2
+
 % Generate target emitter positions [x; y] (meters)
 % numEmitters = 100;       % total number of random emitter locations to create
 % targetPos = [randi([emitter_bounds(1) emitter_bounds(2)],1,numEmitters); ...    
@@ -115,15 +124,36 @@ percent_of_peak = 0.8;    % get the number of samples needed on either side
 c = 299792458;          % speed of light m/s
 
 tic
+num_ds_samps = ceil(delay_spread*fs); % delay spread in rx samples count
+if multi_option == 0
+    multi_idxs = {0};
+    num_jj = 1;
+    num_kk = 1;
+elseif multi_option == 1
+    multi_idxs = num2cell(0:multi_jump:num_ds_samps);
+    num_jj = 1;
+    num_kk = length(multi_idxs);
+elseif multi_option == 2
+    delay_spread = linspace(0,delay_spread,num_delay_spreads);
+    multi_idxs = {nan}; % this will be filled in randomly later
+    num_jj = num_delay_spreads;
+    num_kk = 1;
+else
+    fprintf(1,'\n\nOption not implemented\n\n')
+end
+num_multi_idxs = length(multi_idxs);
+initial_coords = [-41;1];
+
 jj = 1; % for future use
 for ii = 1:size(targetPos,2)
     [coords{ii,jj}, bias_coords{ii,jj}, covar_coords{ii,jj}, ...
     mse_coords(ii,jj), tdoas_true(ii,:), tdoas_coarse{ii,jj}, ...
     tdoas_refined{ii,jj}, prob_correlation(ii,jj), prob_detection(ii,jj), ... 
-    dpd_grid, unique(ii,jj)] = get_single_emitter2(targetPos(:,ii), refPos, ...
+    dpd_grid, a, unique(ii,jj), corr_mag_sq] = get_single_emitter2(targetPos(:,ii), refPos, ...
     Ntrials, tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, wlen, ...
     nstds, percent_of_peak, apply_calibration, calib_path, grid_def, ...
-    delay_spread, num_paths, 0);
+    delay_spread, num_paths, max_num_paths, multi_idxs, multi_option, ...
+    initial_coords, 0);
 end
 toc
 
@@ -182,6 +212,33 @@ for kk = 1:numtargets
     end
 end
 legend('Receiver Locations', 'Target Emitter Location', 'Estimated Target Location', 'Position', [0.5 0.9 0.1 0.1])
+
+figure
+xmin = inf;
+xmax = -inf;
+for nn = 1:numrefs-1
+    refined_tdoas = tdoas_refined{kk,1}(:,nn)*1e9;
+    mean_tdoa = mean(refined_tdoas);
+    std_tdoa = std(refined_tdoas);
+    htrue = plot(tdoas_true(kk,nn), nn, 'kx', 'markersize', 8); hold all
+    hcoarse = plot(tdoas_coarse{kk,1}(:,nn)*1e9, nn, 'ro');
+    hrefine = plot(tdoas_refined{kk,1}(:,nn)*1e9, nn, 'b.');
+    xmin = min([xmin; tdoas_true(kk,nn); tdoas_refined{kk,1}(:,nn)*1e9]);
+    xmax = max([xmax; tdoas_true(kk,nn); tdoas_refined{kk,1}(:,nn)*1e9]);
+    axis([min(-1, 1.1*xmin) max(1.1*xmax,1) 0.5 numrefs])
+    text(mean_tdoa, nn, sprintf('\\mu = %3.2f, \\sigma = %3.2f', mean_tdoa, std_tdoa), ...
+        'horizontalalignment', 'center', 'verticalalignment', 'top',...
+        'FontSize', 8);
+end
+y_values = 1:numrefs-1;
+ylabels = {'1,2', '1,3'};
+set(gca, 'Ytick', y_values, 'YTickLabel',ylabels);
+xlabel('TDOA (ns)')
+ylabel('Receiver Correlation Pairs')
+hleglines = [htrue(1) hcoarse(1) hrefine(1)];
+legend(hleglines, 'True TDOA', 'Coarse TDOA Estimate', 'Refined TDOA Estimate', 'Location', 'North')
+
+set(gcf, 'Position',  [100, 100, 1300, 800])
 
 %% Create table of TDOAs
 % for kk = 1:numtargets

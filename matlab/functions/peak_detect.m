@@ -1,17 +1,13 @@
-function [peak_idxs, num_samps_from_peak, xmean, xstd] = ...
-    peak_detect(corr_mag_sq, wlen, nstds, percent_of_peak, show_plots)
+function [peak_idxs, los_peak_lags, num_samps_from_peak, xmean, xstd] = ...
+    peak_detect(corr_mag_sq, lags, wlen, nstds, percent_of_peak, show_plots)
 % this is for positive valued series only, as is the case after a magnitude
 % squared operation. wlen should be odd
 
-% xm = movmax(corr_mag_sq,wlen);    % smooths the series to reject false peaks
-% [~,idx_max] = max(xm);  % index where the max inside window begins
 [nsamps, npairs] = size(corr_mag_sq);
+
+% My original way of peak detection, very basic
 [xmax, idx_max] = max(corr_mag_sq);  % index where the max inside window begins
 xmax = max(xmax.');
-% idx_max = idx_max + floor(wlen/2);  % the center of the window is true max
-
-% [val, idxs] = max(x); % simple but will result in false peaks when a true
-                        % peak does not exist
 
 % check that the peak is truely a global outlier peak and not local
 xmean = mean(corr_mag_sq);
@@ -25,6 +21,25 @@ for ii = 1:npairs
         peak_idxs(ii) = idx_max(ii);
     else
         peak_idxs(ii) = NaN;
+    end
+end
+
+% Using MATLABs builtin peak finder method
+corr_mag_sq_norm = corr_mag_sq./max(corr_mag_sq); % normalize peak heights
+peak_thresh = 0.3;
+for ii = 1:npairs
+    [peak_vals, peak_idxs2] = findpeaks(corr_mag_sq_norm(:,ii), ...
+        'MinPeakHeight', peak_thresh);
+    [~,los_peak_idx] = min(abs(lags(peak_idxs2)));
+    los_peak_lags(ii) = lags(peak_idxs2(los_peak_idx),1);
+    selected_peaks(ii) = peak_idxs2(los_peak_idx);
+end
+% findpeaks(corr_mag_sq_norm(:,1), 'MinPeakHeight', 0.3, 'Annotate', 'extents')
+
+% this is just for debug
+for ii = 1:npairs
+    if peak_idxs(ii) ~= selected_peaks(ii)
+        stop_here = 1;
     end
 end
 

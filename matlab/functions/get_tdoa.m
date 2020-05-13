@@ -32,23 +32,41 @@ end
 % We consider the magnitudue squared of xcorr for peak detection
 corr_mag_sq = abs(corr_out).^2;
 
-% Find the peaks within the window of length wlen
-[peak_idxs, num_samps_from_peak] = ...
-    peak_detect(corr_mag_sq, wlen, nstds, percent_of_peak, show_plots);
+% Find the peaks
+% [peak_idxs, los_peak_lags, num_samps_from_peak] = ...
+%     peak_detect(corr_mag_sq, lags, wlen, nstds, percent_of_peak, show_plots);
+% 
+% if sum(isnan(peak_idxs)) > 0 
+%     nanidx = isnan(peak_idxs);
+%     goodidx = ~isnan(peak_idxs);
+% %     fprintf(1,'\n\nNot enough peaks detected\n\n')
+%     tdoas(nanidx) = NaN;
+%     tdoas(goodidx) = lags(goodidx)*Ts;
+%     lags(nanidx) = NaN;
+%     lags(goodidx) = lags(goodidx);
+%     lags_full = lags; % debug sinc interp
+% else
+%     tdoas = lags(peak_idxs)*Ts;
+%     lags_full = lags; % debug sinc interp
+%     lags = lags(peak_idxs);
+% end
+
+[peak_idxs, los_peak_lags, num_samps_from_peak] = ...
+    peak_detect(corr_mag_sq, lags, wlen, nstds, percent_of_peak, show_plots);
 
 if sum(isnan(peak_idxs)) > 0 
     nanidx = isnan(peak_idxs);
     goodidx = ~isnan(peak_idxs);
 %     fprintf(1,'\n\nNot enough peaks detected\n\n')
     tdoas(nanidx) = NaN;
-    tdoas(goodidx) = lags(goodidx)*Ts;
+    tdoas(goodidx) = los_peak_lags(goodidx)*Ts;
     lags(nanidx) = NaN;
-    lags(goodidx) = lags(goodidx);
+    lags(goodidx) = los_peak_lags(goodidx);
     lags_full = lags; % debug sinc interp
 else
-    tdoas = lags(peak_idxs)*Ts;
+    tdoas = los_peak_lags*Ts;
     lags_full = lags; % debug sinc interp
-    lags = lags(peak_idxs);
+    lags = los_peak_lags;
 end
 
 %% Frequency domain correlation and estimation
