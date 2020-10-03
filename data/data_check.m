@@ -7,7 +7,9 @@ close all; clear
 % path = {'outdoors/3-03_07_2020/tx_center_sync/rfs100/1/'};
 % path = {'indoors/1-03_11_2020/tx_center_sync/rfs100/1/'};
 % path = {'desk/18/tx_center_sync/rfs100/10/'};
-path = {'desk/19/tx_center/rfs100/1/'};
+% path = {'desk/19/tx_center/rfs100/1/'};
+% path = {'5 - wireless tests desk/tx_center/rfs9/6/'};
+path = {'6 - long wired tests/tx_center/rfs9/6/'};
 % path = {'15/tx_center/rfs4/1/';
 %         '15/tx_center/rfs4/2/';
 %         '15/tx_center/rfs4/3/'};

@@ -1,7 +1,7 @@
 % This script demonstrates how you can use the fft and ifft to deconvolve
 % sequences. 
 %
-% There are subutlies here between circular convolution and linear
+% There are subtlties here between circular convolution and linear
 % convolution that have to be understood. When you depend on the DFT to do
 % frequency domain equalization, you are inherently assuming a circular
 % convolution took place in the time domain because division of one DFT by 

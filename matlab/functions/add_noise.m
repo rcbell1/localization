@@ -9,23 +9,28 @@ lambda = c/fc;      % wavelength of transmitted signal
 
 % noise power due to thermal noise and electronics
 thermal_pwr_dbm = -174 + 10*log10(noise_bw); % thermal noise at room temp dBm
-electronics_noise_figure_db = 10;   % account for electronics noise
+electronics_noise_figure_db = 10;   % account for rx electronics noise
 noise_pwr_dbm = thermal_pwr_dbm + electronics_noise_figure_db;
 noise_pwr = 10^(noise_pwr_dbm/10);
 std_noise = sqrt(noise_pwr/2);
 
 % free space path loss
 rx_pwr_dbm = tx_pwr_dbm + Gr + Gt + 20*log10(lambda./(4*pi*ranges)); % dBm
+rx_pwr_dbm = Gr + Gt + 20*log10(lambda./(4*pi*ranges));
 rx_pwr = 10.^(rx_pwr_dbm/10);
+
+avg_snr_db = tx_pwr_dbm + 10*log10(rx_pwr./(2*std_noise.^2));
 
 % If a test location lines up with a ref node range = 0 causes pwr to be
 % inf. Change it to 1 representing no change to signal
-inf_idx = isinf(rx_pwr);
-if sum(inf_idx)
-    rx_pwr(inf_idx) = 1;
-end
-
-x_norm = sqrt(rx_pwr).*x;
+% inf_idx = isinf(rx_pwr);
+% if sum(inf_idx)
+%     rx_pwr(inf_idx) = 1;
+% end
+% 
+% x_norm = sqrt(rx_pwr).*x;
+% % x_pwr = mean(abs(x).^2);
+% % test_pwr = mean(abs(x_norm).^2);
 
 % snrdb = rx_pwr_dbm - noise_pwr_dbm;
 % snr = 10.^(snrdb/10);
@@ -33,8 +38,10 @@ x_norm = sqrt(rx_pwr).*x;
 % var_noise = 1./snr;        % noise power is variance
 % std_noise = sqrt(var_noise);
 noise = std_noise.*(randn(nrows, ncols)+1j*randn(nrows,ncols));
-out = x_norm + noise;
-avg_snr_db = 10*log10(rx_pwr./(2*std_noise.^2));
+% out = x_norm + noise;
+out = x + noise;
+% avg_snr_db = 10*log10(rx_pwr./(2*std_noise.^2));
+% avg_snr_db = tx_pwr_dbm + 10*log10(rx_pwr./(2*std_noise.^2));
 % out = x_norm;
 
 if show_plots == 1

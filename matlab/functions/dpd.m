@@ -20,8 +20,10 @@ gy = linspace(grid_ymin, grid_ymax, grid_numy);
 [X,Y] = meshgrid(gx,gy);
 [objX,objY] = meshgrid(1:grid_numx,1:grid_numy);
 
-% wk2 = 2*pi*(0:N-1).'*fs/N;
 wk = 2*pi*ifftshift(((0:N-1)-N/2)).'*fs/N;
+% wk2 = 2*pi*(0:N-1).'*fs/N;
+% t1 = exp(1j*wk*1e-8);
+% t2 = exp(1j*wk2*1e-8);
 rx_f = fft(rx_samps,N);
 
 p = zeros(2,Ngrid);
@@ -32,9 +34,12 @@ for loc_idx = 1:Ngrid
     p(:,loc_idx) = [X(loc_idx);Y(loc_idx)]; % grid point coord
     delays = vecnorm(p(:,loc_idx)-refPos)/c; % time between p and each rx
     delays_diff = delays - delays(1);
+%     t3 = exp(1j*wk*delays_diff);
+%     t4 = exp(1j*wk2*delays_diff);
 %     a = % steering vector
     for t = 1:M
         U(:,t) = exp(1j*wk.*delays_diff(t)).*rx_f(:,t);
+%         U2(:,t) = exp(1j*wk2.*delays_diff(t)).*rx_f(:,t);
     end
     D = U'*U;
     max_evals(loc_idx) = max(eig(D));

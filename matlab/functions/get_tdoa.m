@@ -1,8 +1,12 @@
-function [tdoas, tdoas_f, corr_mag_sq, peak_idxs, lags, lags_full, num_samps_from_peak] = ...
-    get_tdoa(x, wlen, nstds, fs, percent_of_peak, apply_calibration, calib_path, show_plots)
+function [tdoas, tdoas_f, corr_mag, peak_idxs, lags, lags_full, ...
+    num_samps_from_peak, corr_mag_bad] = ...
+    get_tdoa(x, fs, percent_of_peak, apply_calibration, calib_path, tdoas_true, show_plots)
 
 [nsamps, numrefs] = size(x);
 Ts = 1/fs;
+
+% true_lag = round(tdoas_true/Ts); % only used to store bad corr_mag's for analysis
+true_lag = tdoas_true/Ts;
 
 if apply_calibration == 1
     %% Freq domain cross correlation and calibration
@@ -30,31 +34,25 @@ else
 end
 
 % We consider the magnitudue squared of xcorr for peak detection
-corr_mag_sq = abs(corr_out).^2;
-
-% Find the peaks
-% [peak_idxs, los_peak_lags, num_samps_from_peak] = ...
-%     peak_detect(corr_mag_sq, lags, wlen, nstds, percent_of_peak, show_plots);
-% 
-% if sum(isnan(peak_idxs)) > 0 
-%     nanidx = isnan(peak_idxs);
-%     goodidx = ~isnan(peak_idxs);
-% %     fprintf(1,'\n\nNot enough peaks detected\n\n')
-%     tdoas(nanidx) = NaN;
-%     tdoas(goodidx) = lags(goodidx)*Ts;
-%     lags(nanidx) = NaN;
-%     lags(goodidx) = lags(goodidx);
-%     lags_full = lags; % debug sinc interp
-% else
-%     tdoas = lags(peak_idxs)*Ts;
-%     lags_full = lags; % debug sinc interp
-%     lags = lags(peak_idxs);
-% end
+corr_mag = abs(corr_out);
 
 [peak_idxs, los_peak_lags, num_samps_from_peak] = ...
-    peak_detect(corr_mag_sq, lags, wlen, nstds, percent_of_peak, show_plots);
+    peak_detect(corr_mag, lags, percent_of_peak, show_plots);
 
-if sum(isnan(peak_idxs)) > 0 
+% for debugging correlation peaks only
+% if sum(los_peak_lags == true_lag) ~= numrefs - 1
+%     corr_mag_bad = corr_mag;
+% end
+corr_mag_bad = cell(1,numrefs-1);
+for nn = 1:numrefs-1
+    if max(abs(los_peak_lags(nn) - true_lag(nn))) > 1
+        corr_mag_bad{nn} = corr_mag(:,nn);
+    else
+        corr_mag_bad{nn} = nan;
+    end
+end
+
+if sum(isnan(peak_idxs)) > 0  % peaks were missed
     nanidx = isnan(peak_idxs);
     goodidx = ~isnan(peak_idxs);
 %     fprintf(1,'\n\nNot enough peaks detected\n\n')

@@ -3,13 +3,18 @@ function [out, noise_bw] = generate_signal(Nsym, fsym, sps, span, beta, show_plo
 noise_bw = fsym*(beta+1);
 
 x1 = 2*randi([0 1], Nsym, 1)-1;
-x2 = upsample(x1,sps);
-rrc = rcosdesign(beta, span, sps);
-rrc = rrc.'/max(rrc);
 
-out = conv(rrc, x2);
-out = out/sqrt(mean(abs(out).^2)); % normalize power to 1
-% out = filter(rrc,1,x2);
+if sps == 1
+    out = [0;0;x1;0;0];
+else
+    x2 = upsample(x1,sps);
+    rrc = rcosdesign(beta, span, sps);
+    rrc = rrc.'/max(rrc);
+
+    out = conv(rrc, x2);
+    out = out/sqrt(mean(abs(out).^2)); % normalize power to 1
+    % out = filter(rrc,1,x2);
+end
 
 if show_plots == 1
     figure

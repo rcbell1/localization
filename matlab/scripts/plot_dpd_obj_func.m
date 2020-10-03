@@ -18,6 +18,9 @@ num_paths = 2;      % number of multipaths per reciever for option 1
 multi_jump = 4;     % skip amount for option 1, 1:multi_jump:num_paths
 num_delay_spreads = 10; % number of delay spreads to test in option 2
 max_num_paths = inf; % max number paths for option 2
+max_nlos_amp = 2;
+min_num_taps = 100;
+multi_dist_based = 0;   % is the NLOS amp based on distance traveled?
 
 %% Emitter pulse properties
 tx_pwr_dbm = 67;         % emitter transmit power in dBm (USRP max is 10 dBm)
@@ -122,13 +125,14 @@ tic
 y1 = resample(x, P, Q);
 
 % Add proper delays that correspond to target and emitter locations
-[y2, tdoas_true, ranges] = add_delay2(y1, targetPos, refPos, ...
+[y2, toas_true, tdoas_true, ranges] = add_delay2(y1, targetPos, refPos, ...
     fs, show_plots);
 
 for nn = 1:Ntrials
     % Add multipath
     [y3, a(:,nn)] = add_multipath(y2, fc, fs, ranges, delay_spread, num_paths, ...
-    max_num_paths, multi_idxs{1}, multi_option, show_plots);
+        max_num_paths, multi_idxs{1}, multi_option, max_nlos_amp, ...
+        min_num_taps, multi_dist_based, multi_delays, show_plots);
     
     % Add noise at the proper SNR levels for free space path losses
     y4 = add_noise(y3, tx_pwr_dbm, noise_bw, fc, ranges, show_plots);

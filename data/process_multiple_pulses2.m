@@ -5,14 +5,15 @@ clear; close all
 % path = '3/tx_base/rx1/';
 % path = '3/tx_side/rx1/';
 % path = '3/tx_opp_side/rx1/';
-% path = '5 - wireless tests desk/tx_center/rfs9/6/';
+path = '5 - wireless tests desk/tx_center/rfs9/6/';
+path = '6 - long wired tests/tx_center/rfs9/6/';
 % path = '8 - long wires tx sync/tx_center/rfs9/1/';
 % path = '11 - long wires 01_20_2020/tx_center/rfs14/1/';
 % path = '12 - outdoors - 01_20_2020/tx_side/rfs14/1/';
 % path = '14 - wired 02_20_2020 1021/tx_center/rfs7/1/';
 % path = 'outdoors/3-03_07_2020/tx_center_sync/rfs100/5/';
 % path = 'desk/18/tx_center_sync/rfs100/1/';
-path = 'desk/19/tx_center/rfs100/1/';
+% path = 'desk/19/tx_center/rfs100/1/';
 pulse_file_save_name = 'rx_pulses_wired.mat';
 
 nsamp_shift = 1000; % number of symbols to shift bounds

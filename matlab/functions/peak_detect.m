@@ -1,47 +1,79 @@
 function [peak_idxs, los_peak_lags, num_samps_from_peak, xmean, xstd] = ...
-    peak_detect(corr_mag_sq, lags, wlen, nstds, percent_of_peak, show_plots)
+    peak_detect(corr_mag, lags, percent_of_peak, show_plots)
 % this is for positive valued series only, as is the case after a magnitude
 % squared operation. wlen should be odd
 
-[nsamps, npairs] = size(corr_mag_sq);
+[nsamps, npairs] = size(corr_mag);
 
 % My original way of peak detection, very basic
-[xmax, idx_max] = max(corr_mag_sq);  % index where the max inside window begins
-xmax = max(xmax.');
-
-% check that the peak is truely a global outlier peak and not local
-xmean = mean(corr_mag_sq);
-xstd = std(corr_mag_sq);
-norm_corr_mag_sq = corr_mag_sq - xmean;
-
-peak_idxs = [];
-for ii = 1:npairs
-%     if (corr_mag_sq(idx_max(ii),ii) - xmean(ii)) > nstds*xstd(ii)
-    if (norm_corr_mag_sq(idx_max(ii),ii) - xmean(ii)) > nstds*xstd(ii)
-        peak_idxs(ii) = idx_max(ii);
-    else
-        peak_idxs(ii) = NaN;
-    end
-end
+% [xmax, idx_max] = max(corr_mag);  % index where the max inside window begins
+% xmax = max(xmax.');
+% 
+% % check that the peak is truely a global outlier peak and not local
+% xmean = mean(corr_mag);
+% xstd = std(corr_mag);
+% norm_corr_mag = corr_mag - xmean;
+% 
+% peak_idxs = [];
+% for ii = 1:npairs
+% %     if (corr_mag(idx_max(ii),ii) - xmean(ii)) > nstds*xstd(ii)
+%     if (norm_corr_mag(idx_max(ii),ii) - xmean(ii)) > nstds*xstd(ii)
+%         peak_idxs(ii) = idx_max(ii);
+%     else
+%         peak_idxs(ii) = NaN;
+%     end
+% end
 
 % Using MATLABs builtin peak finder method
-corr_mag_sq_norm = corr_mag_sq./max(corr_mag_sq); % normalize peak heights
-peak_thresh = 0.3;
+corr_mag_norm = corr_mag./max(corr_mag); % normalize peak heights
+peak_thresh = 0.2;
+peak_chooser = 1; % 0 chooses peak with smallest TDOA, 1 chooses highest peak
 for ii = 1:npairs
-    [peak_vals, peak_idxs2] = findpeaks(corr_mag_sq_norm(:,ii), ...
-        'MinPeakHeight', peak_thresh);
-    [~,los_peak_idx] = min(abs(lags(peak_idxs2)));
-    los_peak_lags(ii) = lags(peak_idxs2(los_peak_idx),1);
-    selected_peaks(ii) = peak_idxs2(los_peak_idx);
-end
-% findpeaks(corr_mag_sq_norm(:,1), 'MinPeakHeight', 0.3, 'Annotate', 'extents')
-
-% this is just for debug
-for ii = 1:npairs
-    if peak_idxs(ii) ~= selected_peaks(ii)
-        stop_here = 1;
+    if peak_chooser == 0
+        [peak_vals, peak_idxs2] = findpeaks(corr_mag_norm(:,ii), ...
+            'MinPeakHeight', peak_thresh);
+        [~,los_peak_idx(ii)] = min(abs(lags(peak_idxs2,1)));
+        los_peak_lags(ii) = lags(peak_idxs2(los_peak_idx(ii)),1);
+        selected_peaks(ii) = peak_idxs2(los_peak_idx(ii));
+    else
+        [peak_vals,los_peak_idx(ii)] = max(corr_mag_norm(:,ii));
+        peak_idxs2 = los_peak_idx(ii);
+        los_peak_lags(ii) = lags(los_peak_idx(ii));
+        selected_peaks(ii) = los_peak_idx(ii);
     end
+
+        peak_vals_sv{ii} = peak_vals;
+        peak_idxs2_sv{ii} = peak_idxs2;
 end
+% findpeaks(corr_mag_norm(:,1), 'MinPeakHeight', 0.3, 'Annotate', 'extents')
+
+% figure
+% subplot(2,1,1)
+% plot(lags(:,1),corr_mag_norm(:,1)); hold on
+% plot(lags(peak_idxs2_sv{1},1), peak_vals_sv{1},'vb')
+% % plot(lags(peak_idxs2_sv{1}(los_peak_idx(1)),1),peak_vals_sv{1}((los_peak_idx(1))),'rv','markerfacecolor','b')
+% % plot([lags(1) lags(end)], [peak_thresh peak_thresh], 'k--')
+% axis([-inf inf 0 1.2])
+% title('Pair 12')
+% xlabel('Lag (Samples)')
+% subplot(2,1,2)
+% plot(lags(:,2),corr_mag_norm(:,2)); hold on
+% plot(lags(peak_idxs2_sv{2},2), peak_vals_sv{2},'vb')
+% % plot(lags(peak_idxs2_sv{2}(los_peak_idx(2)),2),peak_vals_sv{2}((los_peak_idx(2))),'rv','markerfacecolor','b')
+% % plot([lags(1) lags(end)], [peak_thresh peak_thresh], 'k--')
+% axis([-inf inf 0 1.2])
+% title('Pair 13')
+% xlabel('Lag (Samples)')
+
+peak_idxs = selected_peaks;
+
+% % this is just for debug
+% for ii = 1:npairs
+%     if peak_idxs(ii) ~= selected_peaks(ii)
+%         stop_here = 1;
+%     end
+% end
+
 
 % Find the number of samples away from peaks we need to go for the peak 
 % value to drop by percent_of_peak
@@ -50,8 +82,8 @@ for nn = 1:npairs
         num_samps(nn) = nan;
     else
         kk = 1;
-        while corr_mag_sq(peak_idxs(nn)+kk,nn) > ...
-                corr_mag_sq(peak_idxs(nn),nn)*percent_of_peak
+        while corr_mag(peak_idxs(nn)+kk,nn) > ...
+                corr_mag(peak_idxs(nn),nn)*percent_of_peak
             kk = kk + 1;
         end
         num_samps(nn) = kk;
@@ -61,14 +93,14 @@ num_samps_from_peak = max(num_samps);
 
 if show_plots == 1
     figure
-    plot(norm_corr_mag_sq,'.-'); hold all
+    plot(norm_corr_mag,'.-'); hold all
     xmin = inf;
     for ii = 1:npairs
-        plot([1 length(corr_mag_sq)], [nstds*xstd(ii) nstds*xstd(ii)], '--');
+        plot([1 length(corr_mag)], [xstd(ii) xstd(ii)], '--');
         if ~isnan(peak_idxs(ii))
-            plot(peak_idxs(ii), norm_corr_mag_sq(peak_idxs(ii),ii), 'o')
-            if xmin > min(norm_corr_mag_sq(peak_idxs(ii)-1,ii),norm_corr_mag_sq(peak_idxs(ii)+1,ii))
-                xmin = min(norm_corr_mag_sq(peak_idxs(ii)-1,ii),norm_corr_mag_sq(peak_idxs(ii)+1,ii));
+            plot(peak_idxs(ii), norm_corr_mag(peak_idxs(ii),ii), 'o')
+            if xmin > min(norm_corr_mag(peak_idxs(ii)-1,ii),norm_corr_mag(peak_idxs(ii)+1,ii))
+                xmin = min(norm_corr_mag(peak_idxs(ii)-1,ii),norm_corr_mag(peak_idxs(ii)+1,ii));
             end
         else
             xmin = 0;
@@ -80,17 +112,17 @@ if show_plots == 1
     if ~isnan(num_samps_from_peak)
         axis([-inf inf 0 1.1*xmax])
     else
-        axis([-inf inf 0 2.1*nstds*max(xstd.')])
+        axis([-inf inf 0 2.1*max(xstd.')])
     end
 
     
     axes('position',[0.6 0.5 0.27 0.3])
-    plot(norm_corr_mag_sq,'.-'); hold all
+    plot(norm_corr_mag,'.-'); hold all
     idx_left = inf;
     idx_right = -inf;
     for ii = 1:npairs
         if ~isnan(peak_idxs(ii))
-            plot(peak_idxs(ii), norm_corr_mag_sq(peak_idxs(ii),ii), 'o')
+            plot(peak_idxs(ii), norm_corr_mag(peak_idxs(ii),ii), 'o')
             if idx_left > peak_idxs(ii)
                 idx_left = peak_idxs(ii);
             end

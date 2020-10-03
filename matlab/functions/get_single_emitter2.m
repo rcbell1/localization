@@ -1,6 +1,6 @@
 function [coords, bias_coords, covar_coords, mse_coords, tdoas_true, ...
     tdoas_coarse, tdoas_refined, prob_correlation, prob_detection, avg_snr_db, ...
-    grid, a, unique, corr_mag_sq_sv] = get_single_emitter2(targetPos, ...
+    grid, h, unique, corr_mag_sq_sv] = get_single_emitter2(targetPos, ...
     refPos, Ntrials, tx_pwr_dbm, fc, fs, fsym, Nsym, span, sps, beta, ...
     wlen, nstds, percent_of_peak, apply_calibration, calib_path, grid_def, ...
     delay_spread, num_paths, max_num_paths, multi_idx, multi_options, ...
@@ -34,7 +34,7 @@ tdoas_f = nan(Ntrials, numpairs);
 for nn = 1:Ntrials
     
     % Add multipath
-    [y3, a(:,nn)] = add_multipath(y2, fc, fs, ranges, delay_spread, num_paths, ...
+    [y3, h{nn}] = add_multipath(y2, fc, fs, ranges, delay_spread, num_paths, ...
     max_num_paths, multi_idx, multi_options, show_plots);
     
     % Add noise at the proper SNR levels for free space path losses
@@ -75,12 +75,12 @@ for nn = 1:Ntrials
         [tdoas_refined(nn,:), diffs] = refine_tdoa(lags_new, corr_peak_samples, fs, show_plots);
 
         % Feed the refined TDOAs to a localization algorithm
-%         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
+        [coords(:,nn), unique] = geo_lsq(refPos, tdoas_refined(nn,:));
 %         [coords(:,nn), unique] = geo_lsq(refPos, tdoas_f(nn,:));
 %         [coords, unique] = geo_sphere_int(refPos, tdoas_refined);
 %         [coords(:,nn), unique] = taylor_linearization(refPos, tdoas_refined(nn,:),initial_coords,[]);
         % DPD does not require peak detection or prior estimation of parameters
-        [coords(:,nn), grid, ~, unique] = dpd(y5, fs, refPos, grid_def);
+%         [coords(:,nn), grid, ~, unique] = dpd(y5, fs, refPos, grid_def);
         
         % Compute statistical performance metrics
         avg_coords = avg_coords + coords(:,nn); 
