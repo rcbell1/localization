@@ -7,7 +7,7 @@ addpath('../functions')
 %% General simulation properties
 % apply_calibration = 0; % for hardware sims
 % calib_path = [];
-Ntrials = 5;            
+Ntrials = 1;            
 plot_toa_contours = 0;                      % 0 off, 1 on
 sim_params.Ntrials = Ntrials;
 sim_params.apply_calibration = 0;           % for hardware sims
@@ -76,7 +76,7 @@ tx_pwr_dbm = -12:1:5;         % emitter transmit power in dBm (USRP max is 10 dB
 fs_tx = 200e6/2;
 Nsym = 10;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols
-sps = 2;                % samples per symbol at the transmitter
+sps = 4;                % samples per symbol at the transmitter
 fsym = fs_tx/sps;             % symbol rate of transmitter (signal bandwidth)
 Tsym = sps/fs_tx;
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
@@ -113,8 +113,8 @@ grid_xmin = grid_bounds(1) - adder + grid_center(1);
 grid_xmax = grid_bounds(2) + adder + grid_center(1);
 grid_ymin = grid_bounds(3) - adder + grid_center(2);
 grid_ymax = grid_bounds(4) + adder + grid_center(2);
-grid_numx = 30;
-grid_numy = 30;
+grid_numx = 31;
+grid_numy = 31;
 
 grid_def = [grid_xmin grid_xmax;
             grid_ymin grid_ymax;
@@ -265,7 +265,7 @@ if num_jj == 1
     end
     
     % Plot the true emitter position
-    tmp = plot(targetPos(1),targetPos(2), 'bp', 'MarkerSize',10,'MarkerFaceColor', '#4DBEEE');
+    tmp = plot(targetPos(1),targetPos(2), 'bp', 'MarkerSize',10,'MarkerFaceColor', [70,190,238]/255);
     lh = [lh tmp(1)];
 
     % plot dpd grid

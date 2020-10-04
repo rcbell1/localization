@@ -10,8 +10,8 @@ grid_xmin = grid_defs(1,1); grid_xmax = grid_defs(1,2);
 grid_ymin = grid_defs(2,1); grid_ymax = grid_defs(2,2);
 grid_numx = grid_defs(3,1); grid_numy = grid_defs(3,2);
 Ng = grid_numx*grid_numy;
-gx = linspace(grid_xmin, grid_xmax, grid_numx);
-gy = linspace(grid_ymin, grid_ymax, grid_numy);
+gx = linspace(grid_xmin, grid_xmax, grid_numx)+1e-4;
+gy = linspace(grid_ymin, grid_ymax, grid_numy)+1e-4;
 
 [X,Y] = meshgrid(gx,gy); % loop traverses vertically through grid
 loc_grid = {X,Y};
@@ -38,45 +38,48 @@ A = zeros(Nsm*(Nr-1), Ng);
 An = zeros(Nsm*(Nr-1), Nsm);
 r = rij_f(:); % stack received signal vectors
 S = 1/(tx_fm'*tx_fm*(Nr-1))*(tx_fm*tx_fm');
-for loc_idx = 1:Ng % emitter grid index   
+parfor loc_idx = 1:Ng % emitter grid index   
 
         p = [X(loc_idx);Y(loc_idx)]; % emitter location test coord    
         tau = vecnorm(p-refPos)/c; % ToF between p and each rx
         dtau = tau(:,2:end)-tau(:,1);
 
+        temp = cell(Nr-1,1);
         for ii = 1:(Nr-1)
 %             O = diag(exp(1j*wk*dtau(ii)));
 %             An(1+Ns*(ii-1):Ns*ii,:) = O;
-            O = diag(exp(1j*wkm*dtau(ii)));
-            An(1+Nsm*(ii-1):Nsm*ii,:) = O;
+%             O = diag(exp(1j*wkm*dtau(ii)));
+%             An(1+Nsm*(ii-1):Nsm*ii,:) = O;
+            temp{ii} = diag(exp(1j*wkm*dtau(ii)));
         end
+        An = vertcat(temp{:});
         A(:,loc_idx) = An*S*An'*r;
         r_est = A(:,loc_idx);
         
-        if loc_idx == coord_to_idx(38,38,grid_numx)
-            figure % time domains
-            subplot(2,1,1)
-            plot(real(tx_t), 'b-'); hold on
-            plot(real(rx_t(:,1)), 'r.-')
-            subplot(2,1,2)
-            plot(imag(tx_t), 'b-'); hold on
-            plot(imag(rx_t(:,1)), 'r.-')
-            figure % spectrums
-            subplot(2,1,1)
-            plot(10*log10(tx_f), 'bx-'); hold on
-            plot(bin_idxs, 10*log10(tx_fm), 'ro')
-            subplot(2,1,2)
-            plot(20*log10(abs(rx_f(:,1))), 'bx-'); hold on
-            plot(bin_idxs, 20*log10(abs(rx_fm(:,1))), 'ro')
-            figure % estimated vs received signal
-            subplot(2,1,1)
-            plot(real(r), 'bx-'); hold on
-            plot(real(r_est), 'r.-')
-            subplot(2,1,2)
-            plot(imag(r), 'bx-'); hold on
-            plot(imag(r_est), 'r.-')
-            stop = 1;
-        end
+%         if loc_idx == coord_to_idx(38,38,grid_numx)
+%             figure % time domains
+%             subplot(2,1,1)
+%             plot(real(tx_t), 'b-'); hold on
+%             plot(real(rx_t(:,1)), 'r.-')
+%             subplot(2,1,2)
+%             plot(imag(tx_t), 'b-'); hold on
+%             plot(imag(rx_t(:,1)), 'r.-')
+%             figure % spectrums
+%             subplot(2,1,1)
+%             plot(10*log10(tx_f), 'bx-'); hold on
+%             plot(bin_idxs, 10*log10(tx_fm), 'ro')
+%             subplot(2,1,2)
+%             plot(20*log10(abs(rx_f(:,1))), 'bx-'); hold on
+%             plot(bin_idxs, 20*log10(abs(rx_fm(:,1))), 'ro')
+%             figure % estimated vs received signal
+%             subplot(2,1,1)
+%             plot(real(r), 'bx-'); hold on
+%             plot(real(r_est), 'r.-')
+%             subplot(2,1,2)
+%             plot(imag(r), 'bx-'); hold on
+%             plot(imag(r_est), 'r.-')
+%             stop = 1;
+%         end
 end
 
 % normalize the columns of A

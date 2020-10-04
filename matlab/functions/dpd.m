@@ -15,8 +15,8 @@ grid_ymax = grid_defs(2,2);
 grid_numx = grid_defs(3,1);
 grid_numy = grid_defs(3,2);
 Ngrid = grid_numx*grid_numy;
-gx = linspace(grid_xmin, grid_xmax, grid_numx);
-gy = linspace(grid_ymin, grid_ymax, grid_numy);
+gx = linspace(grid_xmin, grid_xmax, grid_numx)+1e-4;
+gy = linspace(grid_ymin, grid_ymax, grid_numy)+1e-4;
 [X,Y] = meshgrid(gx,gy);
 [objX,objY] = meshgrid(1:grid_numx,1:grid_numy);
 
