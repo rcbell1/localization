@@ -31,13 +31,14 @@ elseif multi_options == 1
     else
 
         num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
+        channel_coeffs = zeros(num_taps, numrefs);
         for ii = 1:numrefs
             a = [rand;rand];
             h_vals(ii) = max_nlos_amp*a(1).*exp(1j*2*pi*a(2));
 
             h = zeros(num_taps,1);
             h(1) = 1; % direct path uneffected here
-            h(multi_idx+1) = h_vals(ii);
+            h(multi_idx) = h_vals(ii);
             out(:,ii) = conv(samples(:,ii),h);
             channel_coeffs(:,ii) = h;
         end
@@ -45,7 +46,7 @@ elseif multi_options == 1
     end
 elseif multi_options == 2
     num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
-            
+    channel_coeffs = zeros(num_taps, numrefs);        
     for ii = 1:numrefs
         num_paths = randi([0 min(max_num_paths, num_taps)]);
         multi_idx = sort(randperm(num_taps, max(0,num_paths-1))); % num_paths-1 bc one path is the direct path
@@ -68,7 +69,7 @@ elseif multi_options == 2
     end
 elseif multi_options == 3
     num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
-    
+    channel_coeffs = zeros(num_taps, numrefs);
     if num_taps == 0
         out = samples;
     elseif num_taps < min_num_taps

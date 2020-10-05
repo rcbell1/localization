@@ -7,7 +7,7 @@ addpath('../functions')
 %% General simulation properties
 % apply_calibration = 0; % for hardware sims
 % calib_path = [];
-Ntrials = 1;            
+Ntrials = 100;            
 plot_toa_contours = 0;                      % 0 off, 1 on
 sim_params.Ntrials = Ntrials;
 sim_params.apply_calibration = 0;           % for hardware sims
@@ -18,7 +18,7 @@ loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
 
 %% Channel parameters
 delay_spread = 300e-9;   % time difference between first received path and last (s)
-multi_option = 0;   % determines the type of plot to generate
+multi_option = 2;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
                     % 2 = varrying number of paths between 1 and max_num_paths
@@ -57,6 +57,7 @@ channel_params.multi_coords = multi_coords;
 
 %% Emitter coords rectangular coords
 targetPos1 = [25.15;-50.15];
+targetPos1 = [3;27];
 % targetPos1 = [25.5;-50.5];
 % targetPos1 = [randi([-50 50]);randi([-50 50])];
 targetPos = [targetPos1] + center;
@@ -71,12 +72,12 @@ fig_bounds(1,:) = -fig_bounds(1,:);
 fig_bounds = center' + 1.5*radius*fig_bounds;
               
 %% Emitter pulse properties
-tx_pwr_dbm = -12:1:5;         % emitter transmit power in dBm (USRP max is 10 dBm)
+tx_pwr_dbm = -10:2:20;         % emitter transmit power in dBm (USRP max is 10 dBm)
 % fs_tx = 200e6/2.5; %5
-fs_tx = 200e6/2;
+fs_tx = 200e6/200;
 Nsym = 10;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols
-sps = 4;                % samples per symbol at the transmitter
+sps = 2;                % samples per symbol at the transmitter
 fsym = fs_tx/sps;             % symbol rate of transmitter (signal bandwidth)
 Tsym = sps/fs_tx;
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
@@ -92,7 +93,7 @@ transmitter_params.excess_bw = beta;
 transmitter_params.carrier_freq = fc;
 
 %% Receiver properties
-fs = 200e6/2;                % receiver sample rates (Hz)
+fs = 200e6/100;                % receiver sample rates (Hz)
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
@@ -150,8 +151,6 @@ elseif multi_option == 4
 else
     fprintf(1,'\n\nOption not implemented\n\n')
 end
-channel_params.multi_idxs = multi_idxs;
-num_multi_idxs = length(multi_idxs);
 initial_coords = targetPos + [-10;10] + center;
 loc_alg_params.initial_coords = initial_coords;
 Ntypes = length(loc_types);
@@ -159,6 +158,8 @@ Npowers = length(tx_pwr_dbm);
 for ii = 1:Ntypes
     loc_alg_params.type = loc_types{ii};
     for jj = 1:num_jj 
+        channel_params.multi_idxs = multi_idxs{jj};
+        num_multi_idxs = length(multi_idxs);
         for kk = 1:Npowers
         
             channel_params.delay_spread = delay_spread(jj);
@@ -221,8 +222,9 @@ stop_time = toc(start_time);
 
 %% New Plots
 markers = {'x';'o';'d';'+';'s';'.'};
+figure
 for jj = 1:num_jj
-    figure
+    subplot(ceil(num_jj/4),4,jj)
     mse_plot = squeeze(mse_coords(:,jj,:));
     hf = plot(tx_pwr_dbm, 10*log10(mse_plot));
     set(hf,{'Marker'},markers(1:Ntypes))
