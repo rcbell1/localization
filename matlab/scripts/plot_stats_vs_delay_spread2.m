@@ -18,7 +18,7 @@ loc_alg_params.type = ['sparse-dpd'];
 
 %% Channel parameters
 delay_spread = 300e-9;   % time difference between first received path and last (s)
-multi_option = 0;   % determines the type of plot to generate
+multi_option = 1;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
                     % 2 = varrying number of paths between 1 and max_num_paths
@@ -211,13 +211,12 @@ elseif multi_option == 4
 else
     fprintf(1,'\n\nOption not implemented\n\n')
 end
-channel_params.multi_idxs = multi_idxs;
-num_multi_idxs = length(multi_idxs);
 initial_coords = [-1;1] + center;
 loc_alg_params.initial_coords = initial_coords;
 for ii = 1:Nemitter
     for jj = 1:num_jj  
-        
+        channel_params.multi_idxs = multi_idxs{jj};
+        num_multi_idxs = length(multi_idxs);
         channel_params.delay_spread = delay_spread(jj);
     
         [results.target{ii}.multi{jj}] = ...
