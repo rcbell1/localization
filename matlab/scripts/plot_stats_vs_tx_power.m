@@ -7,7 +7,7 @@ addpath('../functions')
 %% General simulation properties
 % apply_calibration = 0; % for hardware sims
 % calib_path = [];
-Ntrials = 100;            
+Ntrials = 10;            
 plot_toa_contours = 0;                      % 0 off, 1 on
 sim_params.Ntrials = Ntrials;
 sim_params.apply_calibration = 0;           % for hardware sims
@@ -17,7 +17,7 @@ loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
 % loc_types = {'dpd','lsq', 'si', 'taylor'};
 
 %% Channel parameters
-delay_spread = 300e-9;   % time difference between first received path and last (s)
+delay_spread = 300e-8;   % time difference between first received path and last (s)
 multi_option = 2;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
@@ -28,7 +28,7 @@ num_paths = 2;      % number of multipaths per reciever for option 1
 multi_jump = 4;     % skip amount for option 1, 1:multi_jump:num_paths
 num_delay_spreads = 10; % number of delay spreads to test in option 2
 max_num_paths = inf; % max number paths for option 2
-max_nlos_amp = 2;
+max_nlos_amp = 1;
 min_num_taps = 100;
 multi_dist_based = 1;   % is the NLOS amp based on distance traveled?
 
@@ -58,7 +58,7 @@ channel_params.multi_coords = multi_coords;
 %% Emitter coords rectangular coords
 targetPos1 = [25.15;-50.15];
 targetPos1 = [3;27];
-% targetPos1 = [25.5;-50.5];
+targetPos1 = [0;0];
 % targetPos1 = [randi([-50 50]);randi([-50 50])];
 targetPos = [targetPos1] + center;
 
@@ -74,7 +74,7 @@ fig_bounds = center' + 1.5*radius*fig_bounds;
 %% Emitter pulse properties
 tx_pwr_dbm = -10:2:20;         % emitter transmit power in dBm (USRP max is 10 dBm)
 % fs_tx = 200e6/2.5; %5
-fs_tx = 200e6/200;
+fs_tx = 200e6/20;
 Nsym = 10;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols
 sps = 2;                % samples per symbol at the transmitter
@@ -93,7 +93,7 @@ transmitter_params.excess_bw = beta;
 transmitter_params.carrier_freq = fc;
 
 %% Receiver properties
-fs = 200e6/100;                % receiver sample rates (Hz)
+fs = 200e6/10;                % receiver sample rates (Hz)
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
@@ -105,11 +105,11 @@ receiver_params.percent_of_peak = percent_of_peak; % get the number of samples
                             % for use in super resolution
 %% Needed by dpd
 % brad = 1.2*radius;
-brad = 0.125*radius;
+brad = 1*radius;
 grid_bounds = [-brad brad -brad brad];
 adder = 0;
 grid_center = targetPos;
-% grid_center = 0;
+grid_center = [0;0];
 grid_xmin = grid_bounds(1) - adder + grid_center(1);
 grid_xmax = grid_bounds(2) + adder + grid_center(1);
 grid_ymin = grid_bounds(3) - adder + grid_center(2);
@@ -222,16 +222,46 @@ stop_time = toc(start_time);
 
 %% New Plots
 markers = {'x';'o';'d';'+';'s';'.'};
+leg_pos = [0.2 0.67 0.1 0.1]; % legend position
+fig_dims = [300, 35, 1100, 725]; % figure window defs
+anno_pos = [0.1 0.75 0.2 0.2]; % annotation box position
+my_anno = [];
+for ii = 1:max(Nrx,6)
+    if ii > Nrx
+        my_anno{ii} = sprintf('                ');
+    else        
+        my_anno{ii} = sprintf('SNR%i:%3.1f', ii, avg_snr_db{1,1}(ii,1));
+    end
+end
+my_anno{1} = [my_anno{1} ', DelSprd:' ...
+    sprintf('%3.0f/%i',delay_spread(end)*1e9,num_delay_spreads) ...
+    ', MDistBased:' sprintf('%i',multi_dist_based)];
+my_anno{2} = [my_anno{2} ', Tx BW:' sprintf('%2.1f',fsym/1e6) ', Ntrials:' sprintf('%i',Ntrials)];
+my_anno{3} = [my_anno{3} ', Rx Samp:' sprintf('%2.1f',fs/1e6) ', MOption:' sprintf('%i',multi_option)];
+my_anno{4} = [my_anno{4} ', MPaths:' sprintf('%i',num_paths) ', Nsym:' sprintf('%i',Nsym)] ;
+my_anno{5} = [my_anno{5} ', MaxMAmp:' sprintf('%i',max_nlos_amp) ', fc:' sprintf('%3.3f',fc*1e-9)];
+my_anno{6} = [my_anno{6} ', simtime:' sprintf('%.1f',stop_time/60)];
+
 figure
+annotation('textbox',anno_pos,'String',my_anno, 'FitBoxToText','on');
 for jj = 1:num_jj
-    subplot(ceil(num_jj/4),4,jj)
+    if num_jj > 1
+        subplot(ceil((num_jj+2)/4),4,jj+2)
+    else
+        subplot(ceil((num_jj+2)/4),1,jj+2)
+    end
     mse_plot = squeeze(mse_coords(:,jj,:));
     hf = plot(tx_pwr_dbm, 10*log10(mse_plot));
+    hf = plot(tx_pwr_dbm, mse_plot);
     set(hf,{'Marker'},markers(1:Ntypes))
-%     axis([-inf inf 0 10])
+%     axis([-inf inf 0 50])
     axis([-inf inf -inf inf])
-    legend(hf, loc_types{:})
+    if num_jj > 1
+        title( sprintf('%4.1f',delay_spread(jj)*1e9) )
+    end
+    legend(hf, loc_types{:}, 'Position', leg_pos)
 end
+set(gcf, 'Position',  fig_dims)
 
 % Plot localization results
 figure
@@ -296,7 +326,6 @@ end
 
 %% Old Plots
 c = 299792458;          % speed of light m/s
-
 my_anno = [];
 for ii = 1:max(Nrx,6)
     if ii > Nrx
@@ -313,7 +342,6 @@ my_anno{3} = [my_anno{3} ', Rx Samp:' sprintf('%2.1f',fs/1e6) ', MOption:' sprin
 my_anno{4} = [my_anno{4} ', MPaths:' sprintf('%i',num_paths) ', Nsym:' sprintf('%i',Nsym)] ;
 my_anno{5} = [my_anno{5} ', MaxMAmp:' sprintf('%i',max_nlos_amp) ', fc:' sprintf('%3.3f',fc*1e-9)];
 my_anno{6} = [my_anno{6} ', TxPdBm:' sprintf('%2.1f',tx_pwr_dbm) ', simtime:' sprintf('%.1f',stop_time/60)];
-
 if multi_option == 1
     
     temp = horzcat(bias_coords{:});
