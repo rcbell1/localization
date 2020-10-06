@@ -75,6 +75,7 @@ elseif multi_options == 3
     elseif num_taps < min_num_taps
         fs_new = ceil(min_num_taps/delay_spread);
         num_taps = min_num_taps;
+        channel_coeffs = zeros(num_taps, numrefs);
         [p,q] = rat(fs_new/fs); % without this resample can hang
         new_samples = resample(samples,p,q);
         for ii = 1:numrefs
