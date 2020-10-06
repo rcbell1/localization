@@ -7,7 +7,7 @@ addpath('../functions')
 %% General simulation properties
 % apply_calibration = 0; % for hardware sims
 % calib_path = [];
-Ntrials = 10;            
+Ntrials = 1;            
 plot_toa_contours = 0;                      % 0 off, 1 on
 sim_params.Ntrials = Ntrials;
 sim_params.apply_calibration = 0;           % for hardware sims
@@ -18,7 +18,7 @@ loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
 
 %% Channel parameters
 delay_spread = 300e-8;   % time difference between first received path and last (s)
-multi_option = 2;   % determines the type of plot to generate
+multi_option = 3;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
                     % 2 = varrying number of paths between 1 and max_num_paths
@@ -26,11 +26,11 @@ multi_option = 2;   % determines the type of plot to generate
                     % 3 = two path with increasing delay spread
 num_paths = 2;      % number of multipaths per reciever for option 1
 multi_jump = 4;     % skip amount for option 1, 1:multi_jump:num_paths
-num_delay_spreads = 10; % number of delay spreads to test in option 2
+num_delay_spreads = 6; % number of delay spreads to test in option 2
 max_num_paths = inf; % max number paths for option 2
 max_nlos_amp = 1;
 min_num_taps = 100;
-multi_dist_based = 1;   % is the NLOS amp based on distance traveled?
+multi_dist_based = 0;   % is the NLOS amp based on distance traveled?
 
 channel_params.multi_option = multi_option;
 channel_params.num_paths = num_paths;
@@ -72,7 +72,7 @@ fig_bounds(1,:) = -fig_bounds(1,:);
 fig_bounds = center' + 1.5*radius*fig_bounds;
               
 %% Emitter pulse properties
-tx_pwr_dbm = -10:2:20;         % emitter transmit power in dBm (USRP max is 10 dBm)
+tx_pwr_dbm = -35:2:-5;         % emitter transmit power in dBm (USRP max is 10 dBm)
 % fs_tx = 200e6/2.5; %5
 fs_tx = 200e6/20;
 Nsym = 10;              % number of symbols in signals
@@ -114,8 +114,10 @@ grid_xmin = grid_bounds(1) - adder + grid_center(1);
 grid_xmax = grid_bounds(2) + adder + grid_center(1);
 grid_ymin = grid_bounds(3) - adder + grid_center(2);
 grid_ymax = grid_bounds(4) + adder + grid_center(2);
-grid_numx = 31;
-grid_numy = 31;
+% grid_numx = 31;
+% grid_numy = 31;
+grid_numx = 30;
+grid_numy = 30;
 
 grid_def = [grid_xmin grid_xmax;
             grid_ymin grid_ymax;
@@ -247,15 +249,13 @@ annotation('textbox',anno_pos,'String',my_anno, 'FitBoxToText','on');
 for jj = 1:num_jj
     if num_jj > 1
         subplot(ceil((num_jj+2)/4),4,jj+2)
-    else
-        subplot(ceil((num_jj+2)/4),1,jj+2)
     end
-    mse_plot = squeeze(mse_coords(:,jj,:));
-    hf = plot(tx_pwr_dbm, 10*log10(mse_plot));
-    hf = plot(tx_pwr_dbm, mse_plot);
+    rmse_plot = sqrt(squeeze(mse_coords(:,jj,:)));
+%     hf = plot(tx_pwr_dbm, 10*log10(mse_plot));
+    hf = plot(tx_pwr_dbm, rmse_plot);
     set(hf,{'Marker'},markers(1:Ntypes))
-%     axis([-inf inf 0 50])
-    axis([-inf inf -inf inf])
+    axis([-inf inf 0 50])
+%     axis([-inf inf -inf inf])
     if num_jj > 1
         title( sprintf('%4.1f',delay_spread(jj)*1e9) )
     end
@@ -264,8 +264,8 @@ end
 set(gcf, 'Position',  fig_dims)
 
 % Plot localization results
-figure
 if num_jj == 1
+    figure
     blanks = 1;
     if contains([loc_types{:}], 'sparse-dpd')
         num_subplots = 3; 
@@ -305,6 +305,11 @@ if num_jj == 1
         tmp = plot(dpd_grid{1,1}{1}, dpd_grid{1,1}{2}, 'k.', 'MarkerFaceColor', 'k', ...
                 'MarkerSize',6, 'HandleVisibility','off'); 
         lh = [lh tmp(1)];
+    end
+    
+    for ii = 1:Ntrials
+            tmp = plot(coords{1,1,end}(1,ii),coords{1,1,end}(2,ii), 'b.', 'MarkerSize',...
+                12, 'HandleVisibility','off');
     end
     
     if contains([loc_types{:}], 'taylor')
