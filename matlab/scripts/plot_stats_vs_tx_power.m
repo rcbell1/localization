@@ -17,8 +17,8 @@ loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
 % loc_types = {'dpd','lsq', 'si', 'taylor'};
 
 %% Channel parameters
-delay_spread = 300e-8;   % time difference between first received path and last (s)
-multi_option = 3;   % determines the type of plot to generate
+delay_spread = 300e-9;   % time difference between first received path and last (s)
+multi_option = 2;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
                     % 2 = varrying number of paths between 1 and max_num_paths
@@ -28,7 +28,7 @@ num_paths = 2;      % number of multipaths per reciever for option 1
 multi_jump = 4;     % skip amount for option 1, 1:multi_jump:num_paths
 num_delay_spreads = 6; % number of delay spreads to test in option 2
 max_num_paths = inf; % max number paths for option 2
-max_nlos_amp = 1;
+max_nlos_amp = 2;
 min_num_taps = 100;
 multi_dist_based = 0;   % is the NLOS amp based on distance traveled?
 
@@ -74,7 +74,7 @@ fig_bounds = center' + 1.5*radius*fig_bounds;
 %% Emitter pulse properties
 tx_pwr_dbm = -35:2:-5;         % emitter transmit power in dBm (USRP max is 10 dBm)
 % fs_tx = 200e6/2.5; %5
-fs_tx = 200e6/20;
+fs_tx = 200e6/40;
 Nsym = 10;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols
 sps = 2;                % samples per symbol at the transmitter
@@ -93,7 +93,7 @@ transmitter_params.excess_bw = beta;
 transmitter_params.carrier_freq = fc;
 
 %% Receiver properties
-fs = 200e6/10;                % receiver sample rates (Hz)
+fs = 200e6/20;                % receiver sample rates (Hz)
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
@@ -321,6 +321,31 @@ if num_jj == 1
     axis(fig_bounds(:))
     if strcmp(loc_alg_params.type,'dpd')
         axis tight
+    end
+    
+    % plot multipath reflection location
+    if multi_option == 4
+        for ii = 1:length(multi_coords)
+            if ~isnan(multi_coords{ii})
+                for jj = 1:size(multi_coords{ii},2)
+                    coord = multi_coords{ii}(:,jj);
+                    plot(coord(1),coord(2), 'k^', 'MarkerSize',10, 'MarkerFaceColor', 'g');
+                end
+            end
+        end
+
+        % add labels
+        for ii = 1:length(multi_coords)
+            if ~isnan(multi_coords{ii})
+                for jj = 1:size(multi_coords{ii},2)
+                    coord = multi_coords{ii}(:,jj);
+                    h = text(coord(1), coord(2), sprintf('%i', ii), ...
+                        'horizontalalignment', 'center', 'verticalalignment', 'middle',...
+                        'FontSize', 8);
+                    set(h, 'Color',[0, 0 ,0])
+                end
+            end
+        end
     end
 
     xlabel('x (m)')

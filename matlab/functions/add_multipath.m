@@ -28,6 +28,25 @@ if multi_options == 0
 elseif multi_options == 1
     if multi_idx == 0
         out = samples; % no multipath
+    elseif num_taps < min_num_taps
+        fs_new = ceil(min_num_taps/delay_spread);
+        num_taps = min_num_taps;
+        channel_coeffs = zeros(num_taps, numrefs);
+        [p,q] = rat(fs_new/fs); % without this resample can hang
+        new_samples = resample(samples,p,q);
+        for ii = 1:numrefs
+            a = [rand;rand];
+            h_vals(ii) = max_nlos_amp*a(1).*exp(1j*2*pi*a(2));
+
+            h = zeros(num_taps,1);
+            h(1) = 1; % direct path uneffected here
+            h(multi_idx) = h_vals(ii);
+            temp_out(:,ii) = conv(new_samples(:,ii),h);
+            channel_coeffs(:,ii) = h;
+        end
+        out = resample(temp_out, q, p);
+        out = out(1:num_samps,:); % preserve original length
+        
     else
 
         num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
@@ -42,34 +61,68 @@ elseif multi_options == 1
             out(:,ii) = conv(samples(:,ii),h);
             channel_coeffs(:,ii) = h;
         end
-
+        
     end
 elseif multi_options == 2
     num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
-    channel_coeffs = zeros(num_taps, numrefs);        
-    for ii = 1:numrefs
-        num_paths = randi([0 min(max_num_paths, num_taps)]);
-        multi_idx = sort(randperm(num_taps, max(0,num_paths-1))); % num_paths-1 bc one path is the direct path
-%         path_idxs = sort(randperm(num_taps-1,num_paths-1).'+1);
-%             range_multi = c/fs*path_idxs;
-%         h_vals = lambda./(4*pi*range_multi).* ...
-%             exp(1j*2*pi*rand(num_paths-1,1));
+%     channel_coeffs = zeros(num_taps, numrefs);  
+    if num_taps == 0
+        out = samples;
+    elseif num_taps < min_num_taps
+        fs_new = ceil(min_num_taps/delay_spread);
+        num_taps = min_num_taps;
+        channel_coeffs = zeros(num_taps, numrefs);
+        [p,q] = rat(fs_new/fs); % without this resample can hang
+        new_samples = resample(samples,p,q);
+        for ii = 1:numrefs
+            num_paths = randi([0 min(max_num_paths, num_taps)]);
+            multi_idx = sort(randperm(num_taps, max(0,num_paths-1))); % num_paths-1 bc one path is the direct path
+    %         path_idxs = sort(randperm(num_taps-1,num_paths-1).'+1);
+    %             range_multi = c/fs*path_idxs;
+    %         h_vals = lambda./(4*pi*range_multi).* ...
+    %             exp(1j*2*pi*rand(num_paths-1,1));
 
-        h_vals = max_nlos_amp*rand(num_paths-1,1).* ...
-            exp(1j*2*pi*rand(num_paths-1,1));
+            h_vals = max_nlos_amp*rand(num_paths-1,1).* ...
+                exp(1j*2*pi*rand(num_paths-1,1));
 
-        h = zeros(num_taps,1);
-        h(multi_idx) = h_vals(:);
-            
-        h(1) = 1; % direct path uneffected here
+            h = zeros(num_taps,1);
+            h(multi_idx) = h_vals(:);
+
+            h(1) = 1; % direct path uneffected here
+
+            temp_out(:,ii) = conv(new_samples(:,ii),h);
+            channel_coeffs(:,ii) = h;
+    %         h_vals = nan; % don't care in this scenario
+        end
+        out = resample(temp_out, q, p);
+        out = out(1:num_samps,:); % preserve original length
         
-        out(:,ii) = conv(samples(:,ii),h);
-        channel_coeffs(:,ii) = h;
-%         h_vals = nan; % don't care in this scenario
+    else
+        
+        channel_coeffs = zeros(num_taps, numrefs);
+        for ii = 1:numrefs
+            num_paths = randi([0 min(max_num_paths, num_taps)]);
+            multi_idx = sort(randperm(num_taps, max(0,num_paths-1))); % num_paths-1 bc one path is the direct path
+    %         path_idxs = sort(randperm(num_taps-1,num_paths-1).'+1);
+    %             range_multi = c/fs*path_idxs;
+    %         h_vals = lambda./(4*pi*range_multi).* ...
+    %             exp(1j*2*pi*rand(num_paths-1,1));
+
+            h_vals = max_nlos_amp*rand(num_paths-1,1).* ...
+                exp(1j*2*pi*rand(num_paths-1,1));
+
+            h = zeros(num_taps,1);
+            h(multi_idx) = h_vals(:);
+
+            h(1) = 1; % direct path uneffected here
+
+            temp_out(:,ii) = conv(new_samples(:,ii),h);
+            channel_coeffs(:,ii) = h;
+        end
     end
 elseif multi_options == 3
     num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
-    channel_coeffs = zeros(num_taps, numrefs);
+%     channel_coeffs = zeros(num_taps, numrefs);
     if num_taps == 0
         out = samples;
     elseif num_taps < min_num_taps
