@@ -26,6 +26,7 @@ if multi_options == 0
     out = samples;
 %     channel_coeffs = ones(1,numrefs);
 elseif multi_options == 1
+    num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
     if multi_idx == 0
         out = samples; % no multipath
     elseif num_taps < min_num_taps
@@ -48,8 +49,7 @@ elseif multi_options == 1
         out = out(1:num_samps,:); % preserve original length
         
     else
-
-        num_taps = ceil(delay_spread*fs); % number of samples per delay spread interval
+        
         channel_coeffs = zeros(num_taps, numrefs);
         for ii = 1:numrefs
             a = [rand;rand];

@@ -5,3 +5,4 @@
 *.asv
 *.zip
 *.pyc
+matlab/scripts/matlab_workspace.mat

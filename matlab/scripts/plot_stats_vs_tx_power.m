@@ -4,10 +4,13 @@
 clear; close all
 addpath('../functions')
 
+save_name1 = 'multi_option_1_25ns';
+save_name2 = 'multi_option_1_25ns_grid';
+
 %% General simulation properties
 % apply_calibration = 0; % for hardware sims
 % calib_path = [];
-Ntrials = 1;            
+Ntrials = 50;            
 plot_toa_contours = 0;                      % 0 off, 1 on
 sim_params.Ntrials = Ntrials;
 sim_params.apply_calibration = 0;           % for hardware sims
@@ -15,10 +18,11 @@ sim_params.calib_path = [];                 % for hardware sims
 sim_params.show_plots = 0;
 loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
 % loc_types = {'dpd','lsq', 'si', 'taylor'};
+% loc_types = {'sparse-dpd'};
 
 %% Channel parameters
-delay_spread = 300e-9;   % time difference between first received path and last (s)
-multi_option = 2;   % determines the type of plot to generate
+delay_spread = 25e-9;   % time difference between first received path and last (s)
+multi_option = 4;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
                     % 2 = varrying number of paths between 1 and max_num_paths
@@ -28,9 +32,9 @@ num_paths = 2;      % number of multipaths per reciever for option 1
 multi_jump = 4;     % skip amount for option 1, 1:multi_jump:num_paths
 num_delay_spreads = 6; % number of delay spreads to test in option 2
 max_num_paths = inf; % max number paths for option 2
-max_nlos_amp = 2;
+max_nlos_amp = 1;
 min_num_taps = 100;
-multi_dist_based = 0;   % is the NLOS amp based on distance traveled?
+multi_dist_based = 1;   % is the NLOS amp based on distance traveled?
 
 channel_params.multi_option = multi_option;
 channel_params.num_paths = num_paths;
@@ -43,22 +47,22 @@ channel_params.distance_based = multi_dist_based;
 
 %% Receiver coords by spacing rxs uniformly on circle
 Nrx = 4;
-radius = 80;
+radius = 20;
 origin = 0;     % receiver number to be assigned coordinate [0;0], 0 means none
 [refPos, center] = get_rx_coords(Nrx, origin, radius);
 receiver_params.ref_locs = refPos;
 multi_coords = repmat({nan},Nrx,1);
-multi_coords{1} = [-5; 30];
-% multi_coords{1} = [0; 0];
+% multi_coords{1} = [-5; 30];
+multi_coords(:) = {[25; 0]};
 % multi_coords{2} = [-80; 80];
 % multi_coords{3} = [-40 0; 40 5];
 % multi_coords{2} = [-20; 0];
 channel_params.multi_coords = multi_coords;
 
 %% Emitter coords rectangular coords
-targetPos1 = [25.15;-50.15];
-targetPos1 = [3;27];
-targetPos1 = [0;0];
+% targetPos1 = [25.15;-50.15];
+targetPos1 = [-3.2;-7.7];
+% targetPos1 = [0;0];
 % targetPos1 = [randi([-50 50]);randi([-50 50])];
 targetPos = [targetPos1] + center;
 
@@ -72,9 +76,9 @@ fig_bounds(1,:) = -fig_bounds(1,:);
 fig_bounds = center' + 1.5*radius*fig_bounds;
               
 %% Emitter pulse properties
-tx_pwr_dbm = -35:2:-5;         % emitter transmit power in dBm (USRP max is 10 dBm)
+tx_pwr_dbm = -45:2:-15;         % emitter transmit power in dBm (USRP max is 10 dBm)
 % fs_tx = 200e6/2.5; %5
-fs_tx = 200e6/40;
+fs_tx = 200e6/10;
 Nsym = 10;              % number of symbols in signals
 span = 10;              % total length of shaping filter in symbols
 sps = 2;                % samples per symbol at the transmitter
@@ -93,7 +97,7 @@ transmitter_params.excess_bw = beta;
 transmitter_params.carrier_freq = fc;
 
 %% Receiver properties
-fs = 200e6/20;                % receiver sample rates (Hz)
+fs = 200e6/5;                % receiver sample rates (Hz)
 percent_of_peak = 0.8;    % get the number of samples needed on either side 
                           % of correlation peaks for the peak value to drop 
                           % by this percent for use in super resolution
@@ -257,14 +261,19 @@ for jj = 1:num_jj
     axis([-inf inf 0 50])
 %     axis([-inf inf -inf inf])
     if num_jj > 1
-        title( sprintf('%4.1f',delay_spread(jj)*1e9) )
+        if multi_option == 1
+            path_delay = multi_idxs{jj}/fs*1e9;
+            title( sprintf('%4.1f',path_delay) )
+        else
+            title( sprintf('%4.1f',delay_spread(jj)*1e9) )
+        end
     end
     legend(hf, loc_types{:}, 'Position', leg_pos)
 end
 set(gcf, 'Position',  fig_dims)
 
 % Plot localization results
-if num_jj == 1
+% if num_jj == 1
     figure
     blanks = 1;
     if contains([loc_types{:}], 'sparse-dpd')
@@ -351,9 +360,9 @@ if num_jj == 1
     xlabel('x (m)')
     ylabel('y (m)')
     set(gcf, 'Position',  fig_dims)
-end
+% end
 
-
+% save(['..\figures\mse_v_txpwr\' save_name1])
 %% Old Plots
 c = 299792458;          % speed of light m/s
 my_anno = [];
