@@ -73,11 +73,12 @@ subplot(4,1,4)
 Nfft = max(1024, 2^(nextpow2(size(rx_sig_int_multi,2)))); % must be even for correct results
 faxis = fs*(-0.5:1/Nfft:0.5-1/Nfft);
 tx_sig_f = 10*log10(fftshift(1/Nfft*abs(fft(tx_sig,Nfft)).^2));
-rx_sig_no_multi_f = 20*log10(fftshift(1/Nfft*abs(fft(rx_sig_no_multi.',Nfft)).^2));
-rx_sig_frac_multi_f = 20*log10(fftshift(1/Nfft*abs(fft(rx_sig_frac_multi.',Nfft)).^2));
-rx_sig_int_multi_f = 20*log10(fftshift(1/Nfft*abs(fft(rx_sig_int_multi.',Nfft)).^2));
-lh = [];
-lh(1) = plot(faxis*1e-6, tx_sig_f, '.-'); hold on
+% rx_sig_no_multi_f = 20*log10(fftshift(1/Nfft*abs(fft(rx_sig_no_multi.',Nfft)).^2));
+% rx_sig_frac_multi_f = 20*log10(fftshift(1/Nfft*abs(fft(rx_sig_frac_multi.',Nfft)).^2));
+% rx_sig_int_multi_f = 20*log10(fftshift(1/Nfft*abs(fft(rx_sig_int_multi.',Nfft)).^2));
+% lh = [];
+% lh(1) = plot(faxis*1e-6, tx_sig_f, '.-'); hold on
+plot(faxis*1e-6, tx_sig_f, '.-'); hold on
 plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
 plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
 xlabel('Frequency (MHz)')
@@ -124,16 +125,6 @@ plot_xcorr_time(z, N, pval, pidx, lags, Ts, sps, pdm, xtick_step)
 xlims = xlim;
 text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
 title(sprintf('Fractional Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
-% plot(lags*Ts*1e9, abs(z), '.-'); hold on
-% plot(lags(pidx)*Ts*1e9, pval, 'rx')
-% plot(lags(pidx-sps:pidx+sps)*Ts*1e9, abs(z(pidx-sps:pidx+sps)), 'o', 'MarkerSize', 4)
-% axis([-pdm*N*sps*Ts*1e9 pdm*N*sps*Ts*1e9 0 1.2*max(abs(z))])
-% xlims = xlim;
-% xticks([xlims(1):xtick_step:xlims(2)])
-% text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
-% xlabel('Lag (ns)')
-% ylabel('|xcorr|')
-% title(sprintf('Fractional Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
   
 subplot(num_rows,2,2)
 % estimate the delay using phase
@@ -143,17 +134,18 @@ phase_wrap_step = pi;
 [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
     get_phase_est(tx_sig, tx_sig, faxis, Nfft, fs, bw, removal_band, phase_wrap_step);
 
-plot(faxis*1e-6, phase_f, 'b-'); hold on
-plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
-plot(faxis(array_idx)*1e-6, p_est, 'b-')
-axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
-plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-xlims = xlim;
-ylims = ylim;
-text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
-ylabel('Phase')
-xlabel('Frequency (MHz)')
+plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, mean_delay_est, 0)
+% plot(faxis*1e-6, phase_f, 'b-'); hold on
+% plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+% plot(faxis(array_idx)*1e-6, p_est, 'b-')
+% axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
+% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+% xlims = xlim;
+% ylims = ylim;
+% text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
+% ylabel('Phase')
+% xlabel('Frequency (MHz)')
 
 subplot(num_rows,2,3)
 [z, lags] = xcorr(rx_sig_no_multi,tx_sig);
@@ -165,33 +157,22 @@ xlims = xlim;
 text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
 title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
 
-% plot(lags*Ts*1e9, abs(z), '.-'); hold on
-% plot([D D]*1e9, ylim, 'k--')
-% plot(lags(pidx)*Ts*1e9, pval, 'rx')
-% plot(lags(pidx-sps:pidx+sps)*Ts*1e9, abs(z(pidx-sps:pidx+sps)), 'o', 'MarkerSize', 4)
-% axis([-pdm*N*sps*Ts*1e9 pdm*N*sps*Ts*1e9 0 1.2*max(abs(z))])
-% xlims = xlim;
-% xticks([xlims(1):xtick_step:xlims(2)])
-% text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
-% xlabel('Lag (ns)')
-% ylabel('|xcorr|')
-% title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
-
 subplot(num_rows,2,4)
 [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
     get_phase_est(rx_sig_no_multi, tx_sig, faxis, Nfft, fs, bw, removal_band, phase_wrap_step);
 
-plot(faxis*1e-6, phase_f-m, 'b-'); hold on
-plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
-plot(faxis(array_idx)*1e-6, p_est, 'b-')
-% axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
-axis tight
-plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-xlims = xlim;ylims = ylim;
-text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
-ylabel('Phase')
-xlabel('Frequency (MHz)')
+plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, mean_delay_est, 1)
+% plot(faxis*1e-6, phase_f-m, 'b-'); hold on
+% plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+% plot(faxis(array_idx)*1e-6, p_est, 'b-')
+% % axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
+% axis tight
+% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+% xlims = xlim;ylims = ylim;
+% text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
+% ylabel('Phase')
+% xlabel('Frequency (MHz)')
 
 kk = 1;
 for ii = 1:2:2*(num_rows-2)
@@ -200,22 +181,11 @@ for ii = 1:2:2*(num_rows-2)
     [z, lags] = xcorr(rx_sig_frac_multi(kk,:).',tx_sig);
     [pval, pidx] = max(abs(z));
     z_skew = skewness(abs(z(pidx-sps:pidx+sps)));
+    
     plot_xcorr_time(z, N, pval, pidx, lags, Ts, sps, pdm, xtick_step)
     xlims = xlim;
     text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
     title(sprintf('Second Path Delay: %3.1f ns', kk*Ts/multi_sps*1e9))
-%     plot(lags*Ts*1e9, abs(z), '.-'); hold on
-%     plot([D D]*1e9, ylim, 'k--')
-%     plot(lags(pidx)*Ts*1e9, pval, 'rx')
-%     plot(lags(pidx-sps:pidx+sps)*Ts*1e9, abs(z(pidx-sps:pidx+sps)), 'o', 'MarkerSize', 4)
-%     axis([-pdm*N*sps*Ts*1e9 pdm*N*sps*Ts*1e9 0 1.2*max(abs(z))])
-%     xlims = xlim;
-%     xticks([xlims(1):xtick_step:xlims(2)])
-%     text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
-%     text(xlims(1), 0.75*pval, sprintf('Channel: h = [%s]', num2str(frac_channels{kk},'%2.1f ')))
-%     xlabel('Lag (ns)')
-%     ylabel('|xcorr|')
-%     title(sprintf('Second Path Delay: %3.1f ns', kk*Ts/multi_sps*1e9))
     
     % plot phase of correlation in frequency
     subplot(num_rows,2,ii+5)
@@ -223,18 +193,19 @@ for ii = 1:2:2*(num_rows-2)
     get_phase_est(rx_sig_frac_multi(kk,:).', tx_sig, faxis, Nfft, fs, ...
     bw, removal_band, phase_wrap_step);
 
-    plot(faxis*1e-6, phase_f-m, 'b-'); hold on
-    plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
-    plot(faxis(array_idx)*1e-6, p_est, 'b-')
-%     axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
-    axis tight
-    plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-    plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-    xlims = xlim;
-    ylims = ylim;
-    text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
-    ylabel('Phase')
-    xlabel('Frequency (MHz)')
+    plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, mean_delay_est, 1)
+%     plot(faxis*1e-6, phase_f-m, 'b-'); hold on
+%     plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+%     plot(faxis(array_idx)*1e-6, p_est, 'b-')
+% %     axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
+%     axis tight
+%     plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+%     plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+%     xlims = xlim;
+%     ylims = ylim;
+%     text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
+%     ylabel('Phase')
+%     xlabel('Frequency (MHz)')
         
     kk = kk + 1;
 end
@@ -339,33 +310,23 @@ plot_xcorr_time(z, N, pval, pidx, lags, Ts, sps, pdm, xtick_step)
 xlims = xlim;
 text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
 title(sprintf('Integer Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
-% plot(lags*Ts*1e9, abs(z), '.-'); hold on
-% plot(lags(pidx)*Ts*1e9, pval, 'rx')
-% plot(lags(pidx-sps:pidx+sps)*Ts*1e9, abs(z(pidx-sps:pidx+sps)), 'o', 'MarkerSize', 4)
-% axis([-pdm*N*sps*Ts*1e9 pdm*N*sps*Ts*1e9 0 1.2*max(abs(z))])
-% xlims = xlim;
-% xticks([xlims(1):xtick_step:xlims(2)])
-% text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
-% xlabel('Lag (ns)')
-% ylabel('|xcorr|')
-% title(sprintf('Integer Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
   
 subplot(num_rows,2,2)
 [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
     get_phase_est(tx_sig, tx_sig, faxis, Nfft, fs, ...
     bw, removal_band, phase_wrap_step);  
-
-plot(faxis*1e-6, phase_f, 'b-'); hold on
-plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
-plot(faxis(array_idx)*1e-6, p_est, 'b-')
-axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
-plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-xlims = xlim;
-ylims = ylim;
-text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f ns', mean_delay_est))
-ylabel('Phase')
-xlabel('Frequency (MHz)')
+plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, mean_delay_est, 1)
+% plot(faxis*1e-6, phase_f, 'b-'); hold on
+% plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+% plot(faxis(array_idx)*1e-6, p_est, 'b-')
+% axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
+% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+% xlims = xlim;
+% ylims = ylim;
+% text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f ns', mean_delay_est))
+% ylabel('Phase')
+% xlabel('Frequency (MHz)')
 
 subplot(num_rows,2,3)
 [z, lags] = xcorr(rx_sig_no_multi,tx_sig);
@@ -376,33 +337,22 @@ xlims = xlim;
 text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
 title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
 
-% plot(lags*Ts*1e9, abs(z), '.-'); hold on
-% plot([D D]*1e9, ylim, 'k--')
-% plot(lags(pidx)*Ts*1e9, pval, 'rx')
-% plot(lags(pidx-sps:pidx+sps)*Ts*1e9, abs(z(pidx-sps:pidx+sps)), 'o', 'MarkerSize', 4)
-% axis([-pdm*N*sps*Ts*1e9 pdm*N*sps*Ts*1e9 0 1.2*max(abs(z))])
-% xlims = xlim;
-% xticks([xlims(1):xtick_step:xlims(2)])
-% text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
-% xlabel('Lag (ns)')
-% ylabel('|xcorr|')
-
 subplot(num_rows,2,4)
 [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
     get_phase_est(rx_sig_no_multi, tx_sig, faxis, Nfft, fs, ...
     bw, removal_band, phase_wrap_step);  
-
-plot(faxis*1e-6, phase_f-m, 'b-'); hold on
-plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
-plot(faxis(array_idx)*1e-6, p_est, 'b-')
-% axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
-axis tight
-plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-xlims = xlim;ylims = ylim;
-text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f ns', mean_delay_est))
-ylabel('Phase')
-xlabel('Frequency (MHz)')
+plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, mean_delay_est, 1)
+% plot(faxis*1e-6, phase_f-m, 'b-'); hold on
+% plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+% plot(faxis(array_idx)*1e-6, p_est, 'b-')
+% % axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
+% axis tight
+% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+% xlims = xlim;ylims = ylim;
+% text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f ns', mean_delay_est))
+% ylabel('Phase')
+% xlabel('Frequency (MHz)')
 
 kk = 1;
 for ii = 1:2:2*(num_rows-2)
@@ -414,36 +364,24 @@ for ii = 1:2:2*(num_rows-2)
     xlims = xlim;
     text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
     title(sprintf('Second Path Delay: %3.1f ns', delays(kk)*Ts*1e9))
-%     plot(lags*Ts*1e9, abs(z), '.-'); hold on
-%     plot([D D]*1e9, ylim, 'k--')
-%     plot(lags(pidx)*Ts*1e9, pval, 'rx')
-%     plot(lags(pidx-sps:pidx+sps)*Ts*1e9, abs(z(pidx-sps:pidx+sps)), 'o', 'MarkerSize', 4)
-%     axis([-pdm*N*sps*Ts*1e9 pdm*N*sps*Ts*1e9 0 1.2*max(abs(z))])
-%     xlims = xlim;
-%     xticks([xlims(1):xtick_step:xlims(2)])
-%     text(xlims(1), pval, sprintf('Skewness: %4.2f', z_skew))
-%     text(xlims(1), 0.75*pval, sprintf('Channel: h = [%s]', num2str(int_channels{kk},'%2.1f ')))
-%     xlabel('Lag (ns)')
-%     ylabel('|xcorr|')
-%     title(sprintf('Second Path Delay: %3.1f ns', delays(kk)*Ts*1e9))
     
     subplot(num_rows,2,ii+5)
     [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
     get_phase_est(rx_sig_int_multi(kk,:).', tx_sig, faxis, Nfft, fs, ...
     bw, removal_band, phase_wrap_step);  
-
-    plot(faxis*1e-6, phase_f-m, 'b-'); hold on
-    plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
-    plot(faxis(array_idx)*1e-6, p_est, 'b-')
-%     axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
-    axis tight
-    plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-    plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-    xlims = xlim;
-    ylims = ylim;
-    text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f ns', mean_delay_est))
-    ylabel('Phase')
-    xlabel('Frequency (MHz)')
+    plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, mean_delay_est, 1)
+%     plot(faxis*1e-6, phase_f-m, 'b-'); hold on
+%     plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+%     plot(faxis(array_idx)*1e-6, p_est, 'b-')
+% %     axis([faxis(1)*1e-6 faxis(end)*1e-6 -5 5])
+%     axis tight
+%     plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+%     plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+%     xlims = xlim;
+%     ylims = ylim;
+%     text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f ns', mean_delay_est))
+%     ylabel('Phase')
+%     xlabel('Frequency (MHz)')
         
     kk = kk + 1;
 end
@@ -651,4 +589,24 @@ function plot_xcorr_time(z, N, pval, pidx, lags, Ts, sps, pdm, xtick_step)
     xlabel('Lag (ns)')
     ylabel('|xcorr|')
 %     title(sprintf('Fractional Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
+end
+
+function plot_phase_frequency(phase_f, array_idx, faxis, fbw, m, p_est, ...
+    mean_delay_est, tight)
+
+    plot(faxis*1e-6, phase_f-m, 'b-'); hold on
+    plot(faxis(array_idx)*1e-6, phase_f(array_idx)-m, 'b.')
+    plot(faxis(array_idx)*1e-6, p_est, 'b-')
+    if tight == 1
+        axis tight
+    else
+        axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
+    end
+    plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
+    plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
+    xlims = xlim;
+    ylims = ylim;
+    text(0, ylims(2)*0.7, sprintf('Est Delay: %4.2f', mean_delay_est))
+    ylabel('Phase')
+    xlabel('Frequency (MHz)')
 end
