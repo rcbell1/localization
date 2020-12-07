@@ -12,6 +12,8 @@ Ntrials = sim_params.Ntrials;
 Nsym = transmitter_params.Nsyms;
 fsym = transmitter_params.symbol_rate;
 sps = transmitter_params.sps;
+mod_type = transmitter_params.mod_type;
+mod_order = transmitter_params.mod_order;
 span = transmitter_params.span;
 beta = transmitter_params.excess_bw;
 fc = transmitter_params.carrier_freq;
@@ -78,7 +80,9 @@ switch loc_alg_params.type
 end
 
 % Generate the signal emitted by the target
-[x, noise_bw] = generate_signal2(Nsym, fsym, sps, span, beta, show_plots);
+% [x, noise_bw] = generate_signal2(Nsym, fsym, sps, span, beta, show_plots);
+[x, noise_bw] = signal_generator(mod_type, Nsym, mod_order, sps, fc, ...
+    fsym*sps, beta, span);
 results.tx_raw = x;
 
 [P,Q] = rat(fs/(fsym*sps));

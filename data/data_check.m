@@ -10,6 +10,7 @@ close all; clear
 % path = {'desk/19/tx_center/rfs100/1/'};
 % path = {'5 - wireless tests desk/tx_center/rfs9/6/'};
 path = {'6 - long wired tests/tx_center/rfs9/6/'};
+% path = {'4 - short wired tests/tx_center/rfs9/1/'};
 % path = {'15/tx_center/rfs4/1/';
 %         '15/tx_center/rfs4/2/';
 %         '15/tx_center/rfs4/3/'};
@@ -19,7 +20,7 @@ beta = 0.5;
 num_files = length(path);
 for jj = 1:num_files
     load([path{jj} file_name])
-    Nsamp = Nprx;
+    Nsamp = double(Nprx);
     fs = fs_rx;
     Ntrials = length(bounds)-1;
     Nrx = size(yblock,2);

@@ -15,8 +15,8 @@ span = 5;   % length of pulse shaping filter (symbols)
 beta = 0.18; % excess bandwidth of pulse shaping filter
 
 % Cyclostationary plot parameters (normalized units)
-os_fac    = 4; % oversampling amount
-os_fac_conj = 4;
+os_fac    = 2; % oversampling amount
+os_fac_conj = 2;
 sym_rate = fbw/fs; % noramalized symbol rate
 alpha_scd = 0.:sym_rate/4:1; % define cycle frequencies to compute
 alpa_sym_idx = find(alpha_scd == sym_rate);
@@ -185,20 +185,6 @@ subplot(num_rows,1,1)
 
 plot_mag_phase_together(tx_sig_f, phase_f-m, faxis, fbw, 0)
 title(sprintf('Fractional Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
-% yyaxis left
-% plot(faxis*1e-6, tx_sig_f, 'b-'); hold on
-% axis([-inf inf -100 0])
-% ylabel('PSD')
-% yyaxis right
-% plot(faxis*1e-6, phase_f, 'r-')
-% axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
-% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-% xlims = xlim;
-% ylims = ylim;
-% ylabel('Phase')
-% xlabel('Frequency (MHz)')
-% title(sprintf('Fractional Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
 
 subplot(num_rows,1,2)
 [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
@@ -207,19 +193,6 @@ subplot(num_rows,1,2)
 
 plot_mag_phase_together(rx_sig_no_multi_f, phase_f-m, faxis, fbw, 1)
 title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
-% yyaxis left
-% plot(faxis*1e-6, rx_sig_no_multi_f, 'b-'); hold on
-% axis([-inf inf -100 0])
-% ylabel('PSD')
-% yyaxis right
-% plot(faxis*1e-6, phase_f-m, 'r-')
-% axis tight
-% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-% xlims = xlim;ylims = ylim;
-% ylabel('Phase')
-% xlabel('Frequency (MHz)')
-% title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
 
 kk = 1;
 for ii = 1:1:1*(num_rows-2)
@@ -230,21 +203,6 @@ for ii = 1:1:1*(num_rows-2)
 
     plot_mag_phase_together(rx_sig_frac_multi_f(:,ii), phase_f, faxis, fbw, 1)
     title(sprintf('Second Path Delay: %3.1f ns', kk*Ts/multi_sps*1e9))
-%     title(sprintf('Delay Spread: %3.1f ns', delspreads(kk)*1e9))
-%     yyaxis left
-%     plot(faxis*1e-6, rx_sig_frac_multi_f(:,ii), 'b-'); hold on
-%     axis([-inf inf -100 0])
-%     ylabel('PSD')
-%     yyaxis right
-%     plot(faxis*1e-6, phase_f-m, 'r-')
-%     axis tight
-%     plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-%     plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-%     xlims = xlim;
-%     ylims = ylim;
-%     ylabel('Phase')
-%     xlabel('Frequency (MHz)')
-%     title(sprintf('Delay Spread: %3.1f ns', delspreads(kk)*1e9))
         
     kk = kk + 1;
 end
@@ -334,20 +292,6 @@ subplot(num_rows,1,1)
 
 plot_mag_phase_together(tx_sig_f, phase_f, faxis, fbw, 0)
 title(sprintf('Integer Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
-% yyaxis left
-% plot(faxis*1e-6, tx_sig_f(:,1), 'b-'); hold on
-% ylabel('PSD')
-% axis([-inf inf -100 0])
-% yyaxis right
-% plot(faxis*1e-6, phase_f, 'r-')
-% axis([faxis(1)*1e-6 faxis(end)*1e-6 -1 1])
-% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-% xlims = xlim;
-% ylims = ylim;
-% ylabel('Phase')
-% xlabel('Frequency (MHz)')
-% title(sprintf('Integer Delayed Multipaths, Ts = %3.0f ns\nAutocorrelation', Ts*1e9))
 
 subplot(num_rows,1,2)
 [mean_delay_est, phase_f, p_est, m, fk, array_idx, kidx] = ...
@@ -356,19 +300,6 @@ subplot(num_rows,1,2)
 
 plot_mag_phase_together(rx_sig_no_multi_f, phase_f, faxis, fbw, 1)
 title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
-% yyaxis left
-% plot(faxis*1e-6, rx_sig_no_multi_f, 'b-'); hold on
-% axis([-inf inf -100 0])
-% ylabel('PSD')
-% yyaxis right
-% plot(faxis*1e-6, phase_f-m, 'r-')
-% axis tight
-% plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-% plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-% xlims = xlim;ylims = ylim;
-% ylabel('Phase')
-% xlabel('Frequency (MHz)')
-% title(sprintf('Direct Path Delay: %3.1f ns', D*1e9))
 
 kk = 1;
 for ii = 1:1:1*(num_rows-2)
@@ -379,22 +310,12 @@ for ii = 1:1:1*(num_rows-2)
     
     plot_mag_phase_together(rx_sig_int_multi_f(:,ii), phase_f, faxis, fbw, 1)
     title(sprintf('Second Path Delay: %3.1f ns', delays(kk)*Ts*1e9))
-%     yyaxis left
-%     plot(faxis*1e-6, rx_sig_int_multi_f(:,ii), 'b-'); hold on
-%     axis([-inf inf -100 0])
-%     ylabel('PSD')
-%     yyaxis right
-%     plot(faxis*1e-6, phase_f-m, 'r-')
-%     axis tight
-%     plot([-fbw/2 -fbw/2]*1e-6, ylim, 'k--')
-%     plot([fbw/2 fbw/2]*1e-6, ylim, 'k--')
-%     xlims = xlim;
-%     ylims = ylim;
-%     ylabel('Phase')
-%     xlabel('Frequency (MHz)')
     
     kk = kk + 1;
 end
+
+%% 
+%%%%%%%%%%%%%%%%%%%% FUNCTION DEFS BELOW HERE %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [tx_sig, raw_symbols, shaped_samples] = ...
     get_tx_signal(N, M, sps, fs, fbw, pulse_shaping, span, beta)

@@ -38,7 +38,7 @@ A = zeros(Nsm*(Nr-1), Ng);
 An = zeros(Nsm*(Nr-1), Nsm);
 r = rij_f(:); % stack received signal vectors
 S = 1/(tx_fm'*tx_fm*(Nr-1))*(tx_fm*tx_fm');
-parfor loc_idx = 1:Ng % emitter grid index   
+for loc_idx = 1:Ng % emitter grid index   
 
         p = [X(loc_idx);Y(loc_idx)]; % emitter location test coord    
         tau = vecnorm(p-refPos)/c; % ToF between p and each rx
@@ -56,7 +56,7 @@ parfor loc_idx = 1:Ng % emitter grid index
         A(:,loc_idx) = An*S*An'*r;
         r_est = A(:,loc_idx);
         
-%         if loc_idx == coord_to_idx(38,38,grid_numx)
+        if loc_idx == coord_to_idx(13,10,grid_numx)
 %             figure % time domains
 %             subplot(2,1,1)
 %             plot(real(tx_t), 'b-'); hold on
@@ -64,22 +64,37 @@ parfor loc_idx = 1:Ng % emitter grid index
 %             subplot(2,1,2)
 %             plot(imag(tx_t), 'b-'); hold on
 %             plot(imag(rx_t(:,1)), 'r.-')
-%             figure % spectrums
-%             subplot(2,1,1)
-%             plot(10*log10(tx_f), 'bx-'); hold on
-%             plot(bin_idxs, 10*log10(tx_fm), 'ro')
-%             subplot(2,1,2)
-%             plot(20*log10(abs(rx_f(:,1))), 'bx-'); hold on
-%             plot(bin_idxs, 20*log10(abs(rx_fm(:,1))), 'ro')
+            figure % spectrums
+            subplot(2,1,1)
+            plot(10*log10(tx_f), 'bx-'); hold on
+            plot(bin_idxs, 10*log10(tx_fm), 'ro')
+            subplot(2,1,2)
+            plot(20*log10(abs(rx_f(:,1))), 'bx-'); hold on
+            plot(bin_idxs, 20*log10(abs(rx_fm(:,1))), 'ro')
+            
 %             figure % estimated vs received signal
 %             subplot(2,1,1)
-%             plot(real(r), 'bx-'); hold on
-%             plot(real(r_est), 'r.-')
+%             fh(1) = plot(real(r), 'bx-'); hold on
+%             fh(2) = plot(real(r_est), 'ro-');
+%             title('Real Part Comparison')
+%             xlabel('Sample Number')
+%             ylabel('Amplitude')
+%             ylims = ylim;
+%             plot([Nsm Nsm],ylims, 'k--')
+%             plot([2*Nsm 2*Nsm],ylims, 'k--')
+%             legend(fh, 'Received', 'Estimated')
 %             subplot(2,1,2)
-%             plot(imag(r), 'bx-'); hold on
-%             plot(imag(r_est), 'r.-')
-%             stop = 1;
-%         end
+%             fh(1) = plot(imag(r), 'bx-'); hold on
+%             fh(2) = plot(imag(r_est), 'ro-');
+%             title('Imaginary Part Comparison')
+%             xlabel('Sample Number')
+%             ylabel('Amplitude')
+%             ylims = ylim;
+%             plot([Nsm Nsm],ylims, 'k--')
+%             plot([2*Nsm 2*Nsm],ylims, 'k--')
+%             legend(fh, 'Received', 'Estimated')
+            stop = 1;
+        end
 end
 
 % normalize the columns of A

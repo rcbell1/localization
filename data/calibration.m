@@ -1,6 +1,7 @@
 clear; close all
 
 file_path = '14 - wired 02_20_2020 1021/tx_center/rfs7/1/';
+file_path = '4 - short wired tests/tx_center/rfs9/1/';
 file_name = 'rx_pulses_sliced.mat';
 
 load([file_path file_name])

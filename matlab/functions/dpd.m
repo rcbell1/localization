@@ -44,6 +44,51 @@ for loc_idx = 1:Ngrid
     D = U'*U;
     max_evals(loc_idx) = max(eig(D));
     objective_vals(objY(loc_idx),objX(loc_idx)) = max_evals(loc_idx);
+    
+    if loc_idx == coord_to_idx(13,10,grid_numx)
+%         figure % time domains
+%         for ii = 1:M
+%             subplot(M,2,2*ii-1)
+%             plot(real(rx_samps(:,ii)), 'b.-')
+%             subplot(M,2,2*ii)
+%             plot(imag(rx_samps(:,ii)), 'r.-')
+%         end
+%         figure % spectrums
+%         for ii = 1:M
+%             subplot(M,1,ii)
+%             plot(20*log10(abs(rx_f(:,1))), 'b.-');
+%         end
+%             figure % spectrums
+%             subplot(2,1,1)
+%             plot(10*log10(tx_f), 'bx-'); hold on
+%             plot(bin_idxs, 10*log10(tx_fm), 'ro')
+%             subplot(2,1,2)
+%             plot(20*log10(abs(rx_f(:,1))), 'bx-'); hold on
+%             plot(20*log10(abs(rx_fm(:,1))), 'ro')
+            
+%             figure % estimated vs received signal
+%             subplot(2,1,1)
+%             fh(1) = plot(real(r), 'bx-'); hold on
+%             fh(2) = plot(real(r_est), 'ro-');
+%             title('Real Part Comparison')
+%             xlabel('Sample Number')
+%             ylabel('Amplitude')
+%             ylims = ylim;
+%             plot([Nsm Nsm],ylims, 'k--')
+%             plot([2*Nsm 2*Nsm],ylims, 'k--')
+%             legend(fh, 'Received', 'Estimated')
+%             subplot(2,1,2)
+%             fh(1) = plot(imag(r), 'bx-'); hold on
+%             fh(2) = plot(imag(r_est), 'ro-');
+%             title('Imaginary Part Comparison')
+%             xlabel('Sample Number')
+%             ylabel('Amplitude')
+%             ylims = ylim;
+%             plot([Nsm Nsm],ylims, 'k--')
+%             plot([2*Nsm 2*Nsm],ylims, 'k--')
+%             legend(fh, 'Received', 'Estimated')
+            stop = 1;
+        end
 end
 
 [max_eval, max_eval_idx] = max(max_evals);
@@ -52,4 +97,8 @@ coords = p(:,max_eval_idx);
 % grid = p;
 grid = {X,Y};
 unique = 1;
+end
+
+function idx = coord_to_idx(row,col,Nrows)
+    idx = (row-1)*Nrows + col;
 end

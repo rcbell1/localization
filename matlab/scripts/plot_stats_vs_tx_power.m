@@ -10,19 +10,19 @@ save_name2 = 'multi_option_1_25ns_grid';
 %% General simulation properties
 % apply_calibration = 0; % for hardware sims
 % calib_path = [];
-Ntrials = 50;            
+Ntrials = 20;            
 plot_toa_contours = 0;                      % 0 off, 1 on
 sim_params.Ntrials = Ntrials;
 sim_params.apply_calibration = 0;           % for hardware sims
 sim_params.calib_path = [];                 % for hardware sims
 sim_params.show_plots = 0;
-loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
-% loc_types = {'dpd','lsq', 'si', 'taylor'};
+% loc_types = {'sparse-dpd','dpd','lsq', 'si', 'taylor'};
+loc_types = {'dpd','lsq', 'si', 'taylor'};
 % loc_types = {'sparse-dpd'};
 
 %% Channel parameters
 delay_spread = 25e-9;   % time difference between first received path and last (s)
-multi_option = 4;   % determines the type of plot to generate
+multi_option = 1;   % determines the type of plot to generate
                     % 0 = no multipath
                     % 1 = two path with various delays between them
                     % 2 = varrying number of paths between 1 and max_num_paths
@@ -61,7 +61,7 @@ channel_params.multi_coords = multi_coords;
 
 %% Emitter coords rectangular coords
 % targetPos1 = [25.15;-50.15];
-targetPos1 = [-3.2;-7.7];
+targetPos1 = [-4;-8];
 % targetPos1 = [0;0];
 % targetPos1 = [randi([-50 50]);randi([-50 50])];
 targetPos = [targetPos1] + center;
@@ -76,12 +76,16 @@ fig_bounds(1,:) = -fig_bounds(1,:);
 fig_bounds = center' + 1.5*radius*fig_bounds;
               
 %% Emitter pulse properties
-tx_pwr_dbm = -45:2:-15;         % emitter transmit power in dBm (USRP max is 10 dBm)
+% tx_pwr_dbm = -45:2:-15;         % emitter transmit power in dBm (USRP max is 10 dBm)
+tx_pwr_dbm = -45:2:-15; 
+% tx_pwr_dbm = 0;
 % fs_tx = 200e6/2.5; %5
-fs_tx = 200e6/10;
+mod_type = 'sin';       % fsk, msk, gfsk, cpfsk, qam, psk, pam, ofdm
+mod_order = 2;          % modulation order
 Nsym = 10;              % number of symbols in signals
+sps = 8;                % samples per symbol at the transmitter
+fs_tx = 200e6/10;
 span = 10;              % total length of shaping filter in symbols
-sps = 2;                % samples per symbol at the transmitter
 fsym = fs_tx/sps;             % symbol rate of transmitter (signal bandwidth)
 Tsym = sps/fs_tx;
 beta = 0.4;             % excess bandwidth of tx pulse shaping filter
@@ -95,6 +99,8 @@ transmitter_params.symbol_rate = fsym;
 transmitter_params.symbol_period = Tsym;
 transmitter_params.excess_bw = beta;
 transmitter_params.carrier_freq = fc;
+transmitter_params.mod_type = mod_type;
+transmitter_params.mod_order = mod_order;
 
 %% Receiver properties
 fs = 200e6/5;                % receiver sample rates (Hz)
@@ -118,10 +124,10 @@ grid_xmin = grid_bounds(1) - adder + grid_center(1);
 grid_xmax = grid_bounds(2) + adder + grid_center(1);
 grid_ymin = grid_bounds(3) - adder + grid_center(2);
 grid_ymax = grid_bounds(4) + adder + grid_center(2);
-% grid_numx = 31;
-% grid_numy = 31;
-grid_numx = 30;
-grid_numy = 30;
+grid_numx = 31;
+grid_numy = 31;
+% grid_numx = 30;
+% grid_numy = 30;
 
 grid_def = [grid_xmin grid_xmax;
             grid_ymin grid_ymax;
@@ -269,6 +275,7 @@ for jj = 1:num_jj
         end
     end
     legend(hf, loc_types{:}, 'Position', leg_pos)
+    grid on
 end
 set(gcf, 'Position',  fig_dims)
 
@@ -1051,7 +1058,7 @@ end
 
 
 %% Plot dpd objective function heatmap
-if contains(loc_alg_params.type, 'dpd')% && ~contains(loc_alg_params.type, 'sparse')
+if contains(loc_types, 'dpd')% && ~contains(loc_alg_params.type, 'sparse')
     trial_choice = 1;
 %     dpd_type = 'direct';
     dpd_type = 'vanilla';

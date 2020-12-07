@@ -6,7 +6,7 @@ clear; close all
 % path = '3/tx_side/rx1/';
 % path = '3/tx_opp_side/rx1/';
 path = '5 - wireless tests desk/tx_center/rfs9/6/';
-path = '6 - long wired tests/tx_center/rfs9/6/';
+path = '6 - long wired tests/tx_center/rfs9/1/';
 % path = '8 - long wires tx sync/tx_center/rfs9/1/';
 % path = '11 - long wires 01_20_2020/tx_center/rfs14/1/';
 % path = '12 - outdoors - 01_20_2020/tx_side/rfs14/1/';
@@ -20,9 +20,9 @@ nsamp_shift = 1000; % number of symbols to shift bounds
 start_bound_idx = 5;    
 stop_bound_idx = 55;
 % fs_rx = 200e6/50;   % sample rate of receiver (denoms 22,40,200)
-fs_rx = 200e6/2;   % sample rate of receiver (denoms 22,40,200)
+fs_rx = 200e6/22;   % sample rate of receiver (denoms 22,40,200)
 
-fs_tx = 200e6/20;   % sample rate of transmitter
+fs_tx = 200e6/100;   % sample rate of transmitter
 % fs_tx = 200e6/5;   % sample rate of transmitter
 % npulses = 1050;      % number of pulses expected in the data
 npulses = 100;      % number of pulses expected in the data
